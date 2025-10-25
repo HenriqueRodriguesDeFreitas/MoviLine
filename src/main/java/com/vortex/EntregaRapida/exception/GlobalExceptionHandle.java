@@ -18,16 +18,16 @@ public class GlobalExceptionHandle {
     public ResponseEntity<ErroResponseDto> ConflitoDeEntidadeHandle(
             ConflitoDeEntidadeException ex) {
         response = toResponse(
-                ex, HttpStatus.CONFLICT, ex.getMessage());
+                HttpStatus.CONFLICT, "Erro: conflito de entidade", ex);
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
-    private static ErroResponseDto toResponse(Exception e,
-                                              HttpStatus status,
-                                              String mensagem) {
+    private static ErroResponseDto toResponse(HttpStatus status,
+                                              String erro,
+                                              Exception e) {
         return new ErroResponseDto(LocalDateTime.now(),
                 status.value(),
-                e.getMessage(),
-                mensagem);
+                erro,
+                e.getMessage());
     }
 }
