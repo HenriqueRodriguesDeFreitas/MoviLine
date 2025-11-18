@@ -51,10 +51,25 @@ public class Cidade {
         this.estado = estado;
     }
 
+    public List<Bairro> getBairros() {
+        return bairros;
+    }
+
+    public void setBairros(List<Bairro> bairros) {
+        this.bairros = bairros;
+    }
+
     public boolean validarCidadePertenceEstado(Estado estado) {
         if (this.estado == null || estado == null) {
             return false;
         }
         return this.estado.getId().equals(estado.getId());
+    }
+
+    public boolean verificarCidadePossuiBairroComNomePassado(String nomeBairro){
+        if(nomeBairro == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo");
+
+       return bairros != null && bairros.stream()
+                .anyMatch(b -> b.getNome().equalsIgnoreCase(nomeBairro));
     }
 }
