@@ -21,7 +21,7 @@ public class EstadoService {
         this.estadoMapper = estadoMapper;
     }
 
-    public EstadoResponseDto salvarNovoEstado(EstadoRequestDto dto) {
+    public EstadoResponseDto cadastrarEstado(EstadoRequestDto dto) {
         estadoRepository.findByNomeIgnoreCase(dto.nome())
                 .ifPresent(e -> {
                     String mensagemErroFormatado = String.format(
