@@ -22,6 +22,13 @@ public class GlobalExceptionHandle {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErroResponseDto> conflitoArgumentoInvalido(IllegalArgumentException ex) {
+    response = toResponse(HttpStatus.BAD_REQUEST,
+            "Erro: entrada de argumento inválido", ex);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     private static ErroResponseDto toResponse(HttpStatus status,
                                               String erro,
                                               Exception e) {
