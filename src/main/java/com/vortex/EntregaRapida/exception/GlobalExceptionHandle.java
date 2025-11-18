@@ -15,7 +15,7 @@ public class GlobalExceptionHandle {
     ErroResponseDto response;
 
     @ExceptionHandler(ConflitoDeEntidadeException.class)
-    public ResponseEntity<ErroResponseDto> ConflitoDeEntidadeHandle(
+    public ResponseEntity<ErroResponseDto> conflitoDeEntidadeHandle(
             ConflitoDeEntidadeException ex) {
         response = toResponse(
                 HttpStatus.CONFLICT, "Erro: conflito de entidade", ex);
