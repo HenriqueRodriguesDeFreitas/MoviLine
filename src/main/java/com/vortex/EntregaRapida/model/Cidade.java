@@ -46,4 +46,11 @@ public class Cidade {
     public void setEstado(Estado estado) {
         this.estado = estado;
     }
+
+    public boolean validarCidadePertenceEstado(Estado estado) {
+        if (this.estado == null || estado == null) {
+            return false;
+        }
+        return this.estado.getId().equals(estado.getId());
+    }
 }
