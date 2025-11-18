@@ -12,3 +12,8 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: none
+
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+#    database-type: postgresql
