@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.model;
 
 import jakarta.persistence.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -17,6 +18,9 @@ public class Cidade {
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
+
+    @OneToMany(mappedBy = "cidade", orphanRemoval = true)
+    private List<Bairro> bairros;
 
     public Cidade() {
     }
