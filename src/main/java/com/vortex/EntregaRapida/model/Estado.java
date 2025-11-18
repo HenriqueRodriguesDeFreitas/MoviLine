@@ -13,7 +13,7 @@ public class Estado {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "nome", length = 19, nullable = false)
+    @Column(name = "nome", length = 19, nullable = false, unique = true)
     private String nome;
 
     @OneToMany(mappedBy = "estado", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
