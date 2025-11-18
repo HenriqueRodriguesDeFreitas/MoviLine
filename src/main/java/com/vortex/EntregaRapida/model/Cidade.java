@@ -18,9 +18,11 @@ public class Cidade {
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
 
-    public Cidade(){}
+    public Cidade() {
+    }
 
     public Cidade(String nome, Estado estado) {
+        if (estado == null) throw new IllegalArgumentException("Uma cidade deve pertencer a um estado.");
         this.nome = nome;
         this.estado = estado;
     }
