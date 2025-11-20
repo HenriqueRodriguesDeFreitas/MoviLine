@@ -3,17 +3,21 @@ package com.vortex.EntregaRapida.service;
 import com.vortex.EntregaRapida.dto.request.EstadoRequestDto;
 import com.vortex.EntregaRapida.dto.response.EstadoResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
+import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.EstadoMapper;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.EstadoRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 public class EstadoService {
 
     private final EstadoRepository estadoRepository;
     private final EstadoMapper estadoMapper;
-    private static final String JA_EXISTE_ENTIDADE_COM_NOME = "%s já cadastrado com o nome: %s";
 
     public EstadoService(EstadoRepository estadoRepository,
                          EstadoMapper estadoMapper) {
@@ -21,15 +25,14 @@ public class EstadoService {
         this.estadoMapper = estadoMapper;
     }
 
+    @Transactional
     public EstadoResponseDto cadastrarEstado(EstadoRequestDto dto) {
         estadoRepository.findByNomeIgnoreCase(dto.nome())
                 .ifPresent(e -> {
-                    String mensagemErroFormatado = String.format(
-                            JA_EXISTE_ENTIDADE_COM_NOME, "Estado", dto.nome());
-                    throw new ConflitoDeEntidadeException(mensagemErroFormatado);
+                    throw new ConflitoDeEntidadeException("Já existe estado com o nome passado.");
                 });
 
-        Estado estado = estadoMapper.toEntity(dto);
+        var estado = estadoMapper.toEntity(dto);
 
         estado = estadoRepository.save(estado);
 
