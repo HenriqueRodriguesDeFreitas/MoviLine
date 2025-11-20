@@ -38,4 +38,19 @@ public class EstadoService {
 
         return estadoMapper.toResponse(estado);
     }
+
+    @Transactional
+    public EstadoResponseDto atualizarEstado(UUID idEstado, String novoNome) {
+        Estado estado = estadoRepository.findById(idEstado)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
+
+        estadoRepository.findByNomeIgnoreCase(novoNome)
+                .ifPresent(e -> {
+                    if (!e.getNome().equalsIgnoreCase(estado.getNome()))
+                        throw new ConflitoDeEntidadeException("Já existe estado com o nome passado.");
+                });
+
+        estado.setNome(novoNome);
+        return estadoMapper.toResponse(estadoRepository.save(estado));
+    }
 }
