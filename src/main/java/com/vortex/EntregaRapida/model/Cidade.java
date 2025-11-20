@@ -35,6 +35,10 @@ public class Cidade {
         return id;
     }
 
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
     public String getNome() {
         return nome;
     }
@@ -59,17 +63,19 @@ public class Cidade {
         this.bairros = bairros;
     }
 
-    public boolean validarCidadePertenceEstado(Estado estado) {
+    public boolean validarCidadeJaPertenceEstado(Estado estado) {
         if (this.estado == null || estado == null) {
             return false;
         }
-        return this.estado.getId().equals(estado.getId());
+
+        return estado.getCidades().stream()
+                .anyMatch(c -> c.getNome().equalsIgnoreCase(this.nome));
     }
 
-    public boolean verificarCidadePossuiBairroComNomePassado(String nomeBairro){
-        if(nomeBairro == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo");
+    public boolean verificarCidadeJaPossuiBairro(String nomeBairro) {
+        if (nomeBairro == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo");
 
-       return bairros != null && bairros.stream()
+        return bairros != null && bairros.stream()
                 .anyMatch(b -> b.getNome().equalsIgnoreCase(nomeBairro));
     }
 }
