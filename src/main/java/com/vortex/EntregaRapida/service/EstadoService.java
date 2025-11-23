@@ -7,10 +7,10 @@ import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.EstadoMapper;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.EstadoRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -41,7 +41,7 @@ public class EstadoService {
 
     @Transactional
     public EstadoResponseDto atualizarEstado(UUID idEstado, String novoNome) {
-        Estado estado = estadoRepository.findById(idEstado)
+        Estado estado = estadoRepository.buscarEstadoSimplesPorId(idEstado)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
 
         estadoRepository.findByNomeIgnoreCase(novoNome)
@@ -52,5 +52,12 @@ public class EstadoService {
 
         estado.setNome(novoNome);
         return estadoMapper.toResponse(estadoRepository.save(estado));
+    }
+
+    public List<EstadoResponseDto> buscarTodosEstados() {
+        List<Estado> estados = estadoRepository.buscarTodosEstadosSimples();
+
+        return estados.stream()
+                .map(estadoMapper::toResponse).toList();
     }
 }
