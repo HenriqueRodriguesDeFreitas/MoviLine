@@ -60,4 +60,10 @@ public class EstadoService {
         return estados.stream()
                 .map(estadoMapper::toResponse).toList();
     }
+
+    public EstadoResponseDto buscarEstadoPorId(UUID idEstado) {
+        Estado estado = estadoRepository.buscarEstadoSimplesPorId(idEstado)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id: " + idEstado));
+        return estadoMapper.toResponse(estado);
+    }
 }
