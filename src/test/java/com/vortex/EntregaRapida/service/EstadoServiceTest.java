@@ -3,6 +3,7 @@ package com.vortex.EntregaRapida.service;
 import com.vortex.EntregaRapida.dto.request.EstadoRequestDto;
 import com.vortex.EntregaRapida.dto.response.EstadoResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
+import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.EstadoMapper;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.EstadoRepository;
@@ -32,11 +33,10 @@ class EstadoServiceTest {
     private Estado estado;
     private EstadoRequestDto estadoRequest;
     private EstadoResponseDto estadoResponse;
+    UUID idPadrao = UUID.randomUUID();
 
     @BeforeEach
     void setUp() {
-        UUID idPadrao = UUID.randomUUID();
-
         estado = new Estado("Pará");
         estado.setId(idPadrao);
 
@@ -76,5 +76,55 @@ class EstadoServiceTest {
         verify(estadoRepository, times(1)).findByNomeIgnoreCase(estadoRequest.nome());
         verifyNoMoreInteractions(estadoRepository);
     }
+
+    @Test
+    void atualizarEstado_casoIdEncontrado_casoNomeNaoCadastrado_deveAtualizarEstado() {
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.of(estado));
+        when(estadoRepository.findByNomeIgnoreCase(anyString())).thenReturn(Optional.empty());
+        when(estadoRepository.save(any(Estado.class))).thenReturn(estado);
+        when(estadoMapper.toResponse(any())).thenAnswer(invocation -> {
+            Estado e = invocation.getArgument(0);
+            return new EstadoResponseDto(e.getId(), e.getNome());
+        });
+
+        EstadoResponseDto response = estadoService.atualizarEstado(idPadrao, "Paraná");
+
+        System.out.println(estado.getNome());
+        assertNotNull(response);
+        assertEquals(response.id(), estado.getId(), "Ids não coincidem.");
+        assertEquals(response.nome(), estado.getNome(), "Nomes não coincidem.");
+    }
+
+    @Test
+    void atualizarEstado_casoNaoIdEncontrado_deveRetornarErro(){
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.empty());
+
+        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
+                () -> estadoService.atualizarEstado(idPadrao, "Paraná"));
+
+        assertEquals("Nenhum estado encontrado com o id passado.", exception.getMessage());
+        verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
+        verifyNoMoreInteractions(estadoRepository);
+    }
+
+    @Test
+    void atualizarEstado_casoNomeJaCadastrado_deveRetornarErro(){
+        estado.setNome("Pará");
+        Estado outroEstado = new Estado(UUID.randomUUID(), "Amazonas");
+
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.of(estado));
+        when(estadoRepository.findByNomeIgnoreCase("Amazonas")).thenReturn(Optional.of(outroEstado));
+
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
+                ()-> estadoService.atualizarEstado(idPadrao, "Amazonas"));
+
+        assertEquals("Já existe estado com o nome passado.", exception.getMessage());
+        verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
+        verify(estadoRepository, times(1)).findByNomeIgnoreCase(anyString());
+        verifyNoMoreInteractions(estadoRepository);
+        verifyNoInteractions(estadoMapper);
+    }
+
+
 
 }
