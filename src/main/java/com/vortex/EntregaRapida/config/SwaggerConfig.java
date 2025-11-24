@@ -17,7 +17,7 @@ public class SwaggerConfig {
 
         return new OpenAPI()
                 .info(new Info().title("PH Entrega Rápida")
-                        .description("API REST para logistica para transportadoras")
+                        .description("API REST de logística para transportadoras de pequeno e médio porte.")
                         .version("1.0"))
                 .addSecurityItem(new SecurityRequirement().addList(nomeEsquemaSeguranca))
                 .components(new Components()
