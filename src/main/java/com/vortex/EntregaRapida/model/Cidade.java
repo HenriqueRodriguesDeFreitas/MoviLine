@@ -25,6 +25,11 @@ public class Cidade {
     public Cidade() {
     }
 
+    public Cidade(UUID id, String nome) {
+        this.id = id;
+        this.nome = nome;
+    }
+
     public Cidade(String nome, Estado estado) {
         if (estado == null) throw new IllegalArgumentException("Uma cidade deve pertencer a um estado.");
         this.nome = nome;
