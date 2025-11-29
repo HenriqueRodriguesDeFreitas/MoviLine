@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
+import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
@@ -16,6 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -81,5 +83,22 @@ class CidadeServiceTest {
         verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(any(UUID.class));
         verifyNoMoreInteractions(estadoRepository);
         verifyNoInteractions(cidadeRepository);
+    }
+
+    @Test
+    void cadastrarCidade_deveRetornarConflitoDeEntidadeException_quandoEstadoJaPossuiCidadeComMesmoNome() {
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.of(estado));
+        when(cidadeRepository.buscarCidadesPorEstado(estado.getId())).thenReturn(List.of(cidade));
+
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
+                () -> cidadeService.cadastrarCidade(requestDto));
+
+        assertEquals("Este estado já possui uma cidade com esse nome.", exception.getMessage());
+        verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
+        verify(cidadeRepository, times(1)).buscarCidadesPorEstado(estado.getId());
+        verify(cidadeMapper, never()).toResponse(any());
+        verify(cidadeRepository, never()).save(any());
+        verifyNoMoreInteractions(estadoRepository);
+        verifyNoMoreInteractions(cidadeRepository);
     }
 }
