@@ -1,0 +1,83 @@
+package com.vortex.EntregaRapida.controller;
+
+import com.vortex.EntregaRapida.docs.ErroExamples;
+import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
+import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
+import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
+import com.vortex.EntregaRapida.service.CidadeService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.UUID;
+
+@RestController
+@RequestMapping("cidade")
+public class CidadeController {
+
+    private final CidadeService cidadeService;
+    private static final String TYPE_JSON = "application/json";
+
+    public CidadeController(CidadeService cidadeService) {
+        this.cidadeService = cidadeService;
+    }
+
+    @PostMapping
+    @Operation(summary = "Cadastrar nova cidade", description = "Cadastra uma nova cidade em um estado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201",
+                    description = "Estado cadastrado com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = CidadeResponseDto.class))),
+            @ApiResponse(responseCode = "404",
+                    description = "Não existe estado com o id passado.",
+                    content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = @ExampleObject(
+                                    name = "404", value = ErroExamples.ERRO_404
+                            ))),
+            @ApiResponse(responseCode = "409",
+                    description = "O estado já possui uma cidade com o mesmo nome.",
+                    content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = @ExampleObject(
+                                    name = "409",
+                                    value = ErroExamples.ERRO_409
+                            )))
+    })
+
+    public ResponseEntity<CidadeResponseDto> cadastrarCidade(@RequestBody @Valid
+                                                             CidadeRequestDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cidadeService.cadastrarCidade(dto));
+    }
+
+    @GetMapping("/estado/{idEstado}")
+    @Operation(summary = "Buscar todos as cidades de um estado.", description = "Busca as cidades que pertencem a um estado específico.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Cidades de um estado especfíco retornadas com sucesso.",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = CidadeResponseDto.class),
+                            examples = {@ExampleObject(
+                                    name = "Cidades retornadas com sucesso!", value = """
+                                    [{
+                                    "id" : "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                    "nome" : "Breves"
+                                    },
+                                    {
+                                    "id" : "4fa85f64-5717-4569-b3fc-2c963f66afa2",
+                                    "nome" : "Belém"
+                                    }]
+                                    """)}))
+    })
+    public ResponseEntity<List<CidadeResponseDto>> buscarCidadesDeUmEstado(
+            @PathVariable("idEstado") UUID idEstado) {
+        return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado));
+    }
+}
