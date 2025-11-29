@@ -9,8 +9,8 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface EstadoMapper {
 
-    @Mapping(source = "id", target = "id")
-    @Mapping(source = "nome", target = "nome")
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "nome", source = "nome")
     EstadoResponseDto toResponse(Estado estado);
 
     @Mapping(source = "nome", target = "nome")
