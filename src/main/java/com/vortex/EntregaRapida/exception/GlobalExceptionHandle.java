@@ -24,7 +24,7 @@ public class GlobalExceptionHandle {
     }
 
     @ExceptionHandler(ConflitoEntidadeInexistente.class)
-    public ResponseEntity<ErroResponseDto> conflitoDeEntidadeHandle(
+    public ResponseEntity<ErroResponseDto> entidadeInexistenteHandle(
             ConflitoEntidadeInexistente ex) {
         response = toResponse(
                 HttpStatus.NOT_FOUND, "Erro: entidade inexistente", ex);
