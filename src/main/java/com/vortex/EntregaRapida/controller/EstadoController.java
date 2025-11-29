@@ -34,7 +34,7 @@ public class EstadoController {
     @PostMapping
     @Operation(summary = "Cadastrar novo estado", description = "Cria o cadastro de um novo estado")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200",
+            @ApiResponse(responseCode = "201",
                     description = "Estado cadastrado com sucesso!",
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = EstadoResponseDto.class))),
