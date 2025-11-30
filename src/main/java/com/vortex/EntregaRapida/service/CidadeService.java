@@ -32,9 +32,7 @@ public class CidadeService {
 
     @Transactional
     public CidadeResponseDto cadastrarCidade(CidadeRequestDto dto) {
-        Estado estadoEncontrado = estadoRepository.buscarEstadoSimplesPorId(dto.idEstado())
-                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
-
+        Estado estadoEncontrado = buscaEstadoPorId(dto.idEstado());
 
         List<Cidade> cidadesCadastradas = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
 
