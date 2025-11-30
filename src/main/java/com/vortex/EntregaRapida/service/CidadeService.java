@@ -44,15 +44,46 @@ public class CidadeService {
         return cidadeMapper.toResponse(cidadeRepository.save(novaCidade));
     }
 
-    public List<CidadeResponseDto> buscarTodasCidadeDeUmEstado(UUID idEstado){
+    @Transactional
+    public CidadeResponseDto atualizarCidade(UUID cidadeId, CidadeRequestDto dto) {
+        Estado estadoEncontrado = buscaEstadoPorId(dto.idEstado());
+
+        Cidade cidadeEncontrada = cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o id passado."));
+
+        List<Cidade> cidadesNoEstado = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
+
+        if (verificarEstadoJaPossuiCidade(dto.nome(), cidadesNoEstado, cidadeEncontrada)) {
+            throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com o nome passado.");
+        }
+
+        cidadeEncontrada.setNome(dto.nome());
+        cidadeEncontrada.setEstado(estadoEncontrado);
+
+        return cidadeMapper.toResponse(cidadeRepository.save(cidadeEncontrada));
+    }
+
+    public List<CidadeResponseDto> buscarTodasCidadeDeUmEstado(UUID idEstado) {
         List<Cidade> cidades = cidadeRepository.buscarCidadesPorEstado(idEstado);
         return cidades.stream()
                 .map(cidadeMapper::toResponse).toList();
     }
 
-
+    //Usado no serviço para cadastrar cidade
     private boolean verificarEstadoJaPossuiCidade(String nomeNovaCidade, List<Cidade> cidades) {
         return cidades.stream()
                 .anyMatch(c -> c.getNome().equalsIgnoreCase(nomeNovaCidade));
+    }
+
+    //Usado no serviço para atualizar cidade
+    private boolean verificarEstadoJaPossuiCidade(String novoNome, List<Cidade> cidades, Cidade cidadeEncontrada) {
+        return cidades.stream()
+                .anyMatch(c -> !c.getId().equals(cidadeEncontrada.getId())
+                        && c.getNome().equalsIgnoreCase(novoNome));
+    }
+
+    private Estado buscaEstadoPorId(UUID estadoId) {
+        return estadoRepository.buscarEstadoSimplesPorId(estadoId)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
     }
 }
