@@ -74,6 +74,21 @@ public class CidadeService {
                 .map(cidadeMapper::toResponse).toList();
     }
 
+    public CidadeResponseDto buscarCidadePorId(UUID cidadeId) {
+        Cidade cidade = retornaCidadeComIdPassado(cidadeId);
+        return cidadeMapper.toResponse(cidade);
+    }
+
+    public void deletarCidade(UUID cidadeId) {
+        var cidade = retornaCidadeComIdPassado(cidadeId);
+        cidadeRepository.delete(cidade);
+    }
+
+    private Estado retornaEstadoComIdPassado(UUID estadoId) {
+        return estadoRepository.buscarEstadoSimplesPorId(estadoId)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
+    }
+
     //Usado no serviço para cadastrar cidade
     private boolean verificarEstadoJaPossuiCidade(String nomeNovaCidade, List<Cidade> cidades) {
         return cidades.stream()
