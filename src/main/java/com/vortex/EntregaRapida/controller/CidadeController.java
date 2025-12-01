@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -102,5 +103,32 @@ public class CidadeController {
     public ResponseEntity<List<CidadeResponseDto>> buscarCidadesDeUmEstado(
             @PathVariable("idEstado") UUID idEstado) {
         return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado));
+    }
+
+    @GetMapping("/nome/{nome}")
+    @Operation(summary = "Busca cidade por nome",
+            description = "Busca cidade por nome, retorna todos que tenha os caracteres passados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Busca retornada com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = CidadeResponseDto.class),
+                            examples = @ExampleObject(
+                                    name = "Cidades retornadas com sucesso!",
+                                    value = """
+                                            [{
+                                            "id" : "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                            "nome" : "Breves"
+                                            },
+                                            {
+                                            "id" : "4fa85f64-5717-4569-b3fc-2c963f66afa2",
+                                            "nome" : "Belém"
+                                            }]
+                                            """
+                            )))
+    })
+    public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
+            @PathVariable("nome") @NotBlank String nome) {
+        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(nome));
     }
 }
