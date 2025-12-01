@@ -54,6 +54,12 @@ public class EstadoService {
         return estadoMapper.toResponse(estadoRepository.save(estado));
     }
 
+    public List<EstadoResponseDto> buscarEstadoPorNome(String nome) {
+        List<Estado> estados = estadoRepository.buscarEstadoPorNomeContaining(nome);
+        return estados.stream()
+                .map(estadoMapper::toResponse).toList();
+    }
+
     public List<EstadoResponseDto> buscarTodosEstados() {
         List<Estado> estados = estadoRepository.buscarTodosEstadosSimples();
 
