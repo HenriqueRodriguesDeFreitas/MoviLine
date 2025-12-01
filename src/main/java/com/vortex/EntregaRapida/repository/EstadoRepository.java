@@ -17,4 +17,10 @@ public interface EstadoRepository extends JpaRepository<Estado, UUID> {
 
     @Query("SELECT new Estado(e.id, e.nome) FROM Estado e")
     List<Estado> buscarTodosEstadosSimples();
+
+    @Query("""
+            SELECT new Estado(e.id, e.nome) 
+            FROM Estado e WHERE LOWER(e.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
+            """)
+    List<Estado> buscarEstadoPorNomeContaining(String nome);
 }
