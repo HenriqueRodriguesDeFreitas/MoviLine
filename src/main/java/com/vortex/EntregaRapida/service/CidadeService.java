@@ -32,7 +32,7 @@ public class CidadeService {
 
     @Transactional
     public CidadeResponseDto cadastrarCidade(CidadeRequestDto dto) {
-        Estado estadoEncontrado = buscaEstadoPorId(dto.idEstado());
+        Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
 
         List<Cidade> cidadesCadastradas = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
 
@@ -46,10 +46,9 @@ public class CidadeService {
 
     @Transactional
     public CidadeResponseDto atualizarCidade(UUID cidadeId, CidadeRequestDto dto) {
-        Estado estadoEncontrado = buscaEstadoPorId(dto.idEstado());
+        Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
 
-        Cidade cidadeEncontrada = cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
-                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o id passado."));
+        Cidade cidadeEncontrada = retornaCidadeComIdPassado(cidadeId);
 
         List<Cidade> cidadesNoEstado = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
 
@@ -88,8 +87,8 @@ public class CidadeService {
                         && c.getNome().equalsIgnoreCase(novoNome));
     }
 
-    private Estado buscaEstadoPorId(UUID estadoId) {
-        return estadoRepository.buscarEstadoSimplesPorId(estadoId)
-                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
+    private Cidade retornaCidadeComIdPassado(UUID cidadeId) {
+        return cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o Id passado."));
     }
 }
