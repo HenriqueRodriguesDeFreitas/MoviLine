@@ -69,6 +69,12 @@ public class CidadeService {
                 .map(cidadeMapper::toResponse).toList();
     }
 
+    public List<CidadeResponseDto> buscarCidadesPorNome(String nome) {
+        List<Cidade> cidades = cidadeRepository.buscarCidadesPorNomeContaining(nome);
+        return cidades.stream()
+                .map(cidadeMapper::toResponse).toList();
+    }
+
     //Usado no serviço para cadastrar cidade
     private boolean verificarEstadoJaPossuiCidade(String nomeNovaCidade, List<Cidade> cidades) {
         return cidades.stream()
