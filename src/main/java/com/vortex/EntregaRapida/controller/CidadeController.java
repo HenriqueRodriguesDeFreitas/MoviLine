@@ -128,7 +128,40 @@ public class CidadeController {
                             )))
     })
     public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
-            @PathVariable("nome") @NotBlank String nome) {
+            @PathVariable("nome") String nome) {
         return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(nome));
+    }
+
+    @GetMapping("/{id}")
+    @Operation(summary = "Busca uma cidade por Id", description = "Retorna a cidade que possui o Id passado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = CidadeResponseDto.class),
+                            examples = @ExampleObject(
+                                    name = "Busca retornada com sucesso!",
+                                    value = """
+                                            {
+                                            "id" : "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                            "nome" : "Breves"
+                                            }
+                                            """
+                            ))),
+            @ApiResponse(responseCode = "404", description = "Nenhuma cidade encontrada com o Id passado.",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = @ExampleObject(
+                                    name = "Nenhuma cidade encontrada com o id passado",
+                                    value = ErroExamples.ERRO_404
+                            )))
+    })
+    public ResponseEntity<CidadeResponseDto> buscarCidadePorId(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(cidadeService.buscarCidadePorId(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarCidade(@PathVariable("id") UUID cidadeId) {
+        cidadeService.deletarCidade(cidadeId);
+        return ResponseEntity.noContent().build();
     }
 }
