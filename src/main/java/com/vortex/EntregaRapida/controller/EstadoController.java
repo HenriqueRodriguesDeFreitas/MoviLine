@@ -121,4 +121,28 @@ public class EstadoController {
                                                              @RequestBody String nome) {
         return ResponseEntity.ok(estadoService.atualizarEstado(id, nome));
     }
+
+    @GetMapping("/nome/{nome}")
+    @Operation(summary = "Busca estados por nome", description = "Retorna todos os estados que possuam os caracteres passados")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200",
+                    description = "Dados dos estados retornada com sucesso",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = EstadoResponseDto.class),
+                            examples = {@ExampleObject(
+                                    name = "Estados retornados com sucesso!", value = """
+                                    [{
+                                    "id" : "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                                    "nome" : "Pará"
+                                    },
+                                    {
+                                    "id" : "4fa85f64-5717-4569-b3fc-2c963f66afa2",
+                                    "nome" : "Paraná"
+                                    }]
+                                    """)}))
+    })
+    public ResponseEntity<List<EstadoResponseDto>> buscarPorNome(
+            @PathVariable("nome") @NotBlank String nome) {
+        return ResponseEntity.ok(estadoService.buscarEstadoPorNome(nome));
+    }
 }
