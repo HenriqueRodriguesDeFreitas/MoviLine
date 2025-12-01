@@ -58,7 +58,7 @@ public class CidadeController {
         return ResponseEntity.status(HttpStatus.CREATED).body(cidadeService.cadastrarCidade(dto));
     }
 
-    @PutMapping
+    @PutMapping("/{cidadeId}")
     @Operation(summary = "Atualiza dados de uma cidade", description = "Atualiza o nome e o estado a qual a cidade pertence")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Estado atualizado com sucesso!"
@@ -76,7 +76,7 @@ public class CidadeController {
                     ))
     })
     public ResponseEntity<CidadeResponseDto> atualizarCidade(
-            @PathVariable("idCidade") UUID cidadeId,
+            @PathVariable("cidadeId") UUID cidadeId,
             @RequestBody @Valid CidadeRequestDto dto) {
         return ResponseEntity.ok(cidadeService.atualizarCidade(cidadeId, dto));
     }
