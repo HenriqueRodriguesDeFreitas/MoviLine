@@ -41,13 +41,13 @@ public class CidadeController {
                     description = "Não existe estado com o id passado.",
                     content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
                             examples = @ExampleObject(
-                                    name = "404", value = ErroExamples.ERRO_404
+                                    name = "Não existe estado com o id passado", value = ErroExamples.ERRO_404
                             ))),
             @ApiResponse(responseCode = "409",
                     description = "O estado já possui uma cidade com o mesmo nome.",
                     content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
                             examples = @ExampleObject(
-                                    name = "409",
+                                    name = "Estado já possui cidade com o mesmo nome",
                                     value = ErroExamples.ERRO_409
                             )))
     })
@@ -55,6 +55,29 @@ public class CidadeController {
     public ResponseEntity<CidadeResponseDto> cadastrarCidade(@RequestBody @Valid
                                                              CidadeRequestDto dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(cidadeService.cadastrarCidade(dto));
+    }
+
+    @PutMapping
+    @Operation(summary = "Atualiza dados de uma cidade", description = "Atualiza o nome e o estado a qual a cidade pertence")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Estado atualizado com sucesso!"
+                    , content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = CidadeResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = "Não existe recurso com o Id passado.",
+                    content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(
+                                    name = "Estado não encontrado com o Id passado.",
+                                    value = ErroExamples.ERRO_404
+                            ),
+                                    @ExampleObject(
+                                            name = "Cidade não encontrada com o id passado.",
+                                            value = ErroExamples.ERRO_404
+                                    )}
+                    ))
+    })
+    public ResponseEntity<CidadeResponseDto> atualizarCidade(
+            @PathVariable("idCidade") UUID cidadeId,
+            @RequestBody @Valid CidadeRequestDto dto) {
+        return ResponseEntity.ok(cidadeService.atualizarCidade(cidadeId, dto));
     }
 
     @GetMapping("/estado/{idEstado}")
