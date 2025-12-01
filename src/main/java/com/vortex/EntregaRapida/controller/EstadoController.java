@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.websocket.server.PathParam;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +40,11 @@ public class EstadoController {
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = EstadoResponseDto.class))),
             @ApiResponse(responseCode = "409",
-                    description = "Conflito: Já existe um estado com este nome",
+                    description = "Já existe um estado com este nome",
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = ErroResponseDto.class),
                             examples = {@ExampleObject(
-                                    name = "Erro 409",
+                                    name = "Já existe um estado com este nome.",
                                     value = ErroExamples.ERRO_409
                             )}))
     })
@@ -86,7 +87,7 @@ public class EstadoController {
             @ApiResponse(responseCode = "404", description = "Não existe estado com o id passado.",
                     content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
                             examples = @ExampleObject(
-                                    name = "404",
+                                    name = "Não existe estado com o Id passado.",
                                     value = ErroExamples.ERRO_404
                             )))
     })
@@ -104,15 +105,15 @@ public class EstadoController {
             @ApiResponse(responseCode = "404", description = "Não existe estado com o id passado.",
                     content = @Content(mediaType = TYPE_JSON, schema = @Schema(implementation = ErroResponseDto.class),
                             examples = @ExampleObject(
-                                    name = "404",
+                                    name = "Não existe estado com o Id passado.",
                                     value = ErroExamples.ERRO_404
                             ))),
             @ApiResponse(responseCode = "409",
-                    description = "Conflito: Já existe um estado com este nome",
+                    description = "Já existe um estado com este nome",
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = ErroResponseDto.class),
                             examples = {@ExampleObject(
-                                    name = "Erro 409",
+                                    name = "Já existe estado com o nome passado.",
                                     value = ErroExamples.ERRO_409
                             )}))
     })
