@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.UUID;
 
-public record BairroRequestDto(@Size(max = 150) @NotBlank String nome,
-                               @NotNull UUID cidadeId) {
+public record BairroRequestDto(@NotNull UUID estadoId,
+                               @NotNull UUID cidadeId,
+                               @Size(max = 150) @NotBlank String nome) {
 }
