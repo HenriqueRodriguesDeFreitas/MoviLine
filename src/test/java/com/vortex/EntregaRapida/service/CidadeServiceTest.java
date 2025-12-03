@@ -149,7 +149,7 @@ class CidadeServiceTest {
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
                 () -> cidadeService.atualizarCidade(idPadrao, requestDto));
 
-        assertEquals("Nenhuma cidade encontrada com o id passado.", exception.getMessage());
+        assertEquals("Nenhuma cidade encontrada com o Id passado.", exception.getMessage());
         verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(any(UUID.class));
         verify(cidadeRepository, times(1)).buscarCidadeSimplesPorId(any(UUID.class));
         verify(cidadeRepository, never()).buscarCidadesPorEstado(any(UUID.class));
