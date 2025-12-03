@@ -67,20 +67,4 @@ public class Cidade {
     public void setBairros(List<Bairro> bairros) {
         this.bairros = bairros;
     }
-
-    public boolean validarCidadeJaPertenceEstado(Estado estado) {
-        if (this.estado == null || estado == null) {
-            return false;
-        }
-
-        return estado.getCidades().stream()
-                .anyMatch(c -> c.getNome().equalsIgnoreCase(this.nome));
-    }
-
-    public boolean verificarCidadeJaPossuiBairro(String nomeBairro) {
-        if (nomeBairro == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo");
-
-        return bairros != null && bairros.stream()
-                .anyMatch(b -> b.getNome().equalsIgnoreCase(nomeBairro));
-    }
 }
