@@ -2,7 +2,6 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
-import com.vortex.EntregaRapida.dto.response.EstadoResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.CidadeMapper;

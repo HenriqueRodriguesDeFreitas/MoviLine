@@ -96,7 +96,7 @@ class EstadoServiceTest {
     }
 
     @Test
-    void atualizarEstado_casoNaoIdEncontrado_deveRetornarErro(){
+    void atualizarEstado_casoNaoIdEncontrado_deveRetornarErro() {
         when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.empty());
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
@@ -108,7 +108,7 @@ class EstadoServiceTest {
     }
 
     @Test
-    void atualizarEstado_casoNomeJaCadastrado_deveRetornarErro(){
+    void atualizarEstado_casoNomeJaCadastrado_deveRetornarErro() {
         estado.setNome("Pará");
         Estado outroEstado = new Estado(UUID.randomUUID(), "Amazonas");
 
@@ -116,7 +116,7 @@ class EstadoServiceTest {
         when(estadoRepository.findByNomeIgnoreCase("Amazonas")).thenReturn(Optional.of(outroEstado));
 
         ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
-                ()-> estadoService.atualizarEstado(idPadrao, "Amazonas"));
+                () -> estadoService.atualizarEstado(idPadrao, "Amazonas"));
 
         assertEquals("Já existe estado com o nome passado.", exception.getMessage());
         verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
@@ -124,7 +124,6 @@ class EstadoServiceTest {
         verifyNoMoreInteractions(estadoRepository);
         verifyNoInteractions(estadoMapper);
     }
-
 
 
 }
