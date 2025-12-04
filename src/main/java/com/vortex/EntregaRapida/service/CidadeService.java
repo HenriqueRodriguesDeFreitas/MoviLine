@@ -71,8 +71,12 @@ public class CidadeService {
                 .map(cidadeMapper::toResponse).toList();
     }
 
-    public List<CidadeResponseDto> buscarCidadesPorNome(String nome) {
-        List<Cidade> cidades = cidadeRepository.buscarCidadesPorNomeContaining(nome);
+    public List<CidadeResponseDto> buscarCidadesPorNome(CidadePorNomeRequestDto dto) {
+        var estado = retornaEstadoComIdPassado(dto.estadoId());
+
+        List<Cidade> cidades = cidadeRepository
+                .buscarCidadePorEstadoENome(estado.getId(), dto.cidadeNome());
+
         return cidades.stream()
                 .map(cidadeMapper::toResponse).toList();
     }
