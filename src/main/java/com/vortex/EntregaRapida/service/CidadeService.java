@@ -86,9 +86,16 @@ public class CidadeService {
         return cidadeMapper.toResponse(cidade);
     }
 
-    public void deletarCidade(UUID cidadeId) {
-        var cidade = retornaCidadeComIdPassado(cidadeId);
-        cidadeRepository.delete(cidade);
+    public void deletarCidade(CidadePorIdRequestDto dto) {
+        var estado = retornaEstadoComIdPassado(dto.estadoId());
+        var cidade = retornaCidadeComIdPassado(dto.cidadeId());
+
+        List<Cidade> cidades = retornaCidadesDeUmEstado(estado);
+        if (!CidadeValidator.estadoPossuiCidade(cidade.getId(), cidades)) {
+            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        } else {
+            cidadeRepository.delete(cidade);
+        }
     }
 
     private Estado retornaEstadoComIdPassado(UUID estadoId) {
