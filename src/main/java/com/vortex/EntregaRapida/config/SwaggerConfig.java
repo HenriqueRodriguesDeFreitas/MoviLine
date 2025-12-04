@@ -16,7 +16,7 @@ public class SwaggerConfig {
         final String nomeEsquemaSeguranca = "bearerAuth";
 
         return new OpenAPI()
-                .info(new Info().title("PH Entrega Rápida")
+                .info(new Info().title("MoviLine")
                         .description("API REST de logística para transportadoras de pequeno e médio porte.")
                         .version("1.0"))
                 .addSecurityItem(new SecurityRequirement().addList(nomeEsquemaSeguranca))
