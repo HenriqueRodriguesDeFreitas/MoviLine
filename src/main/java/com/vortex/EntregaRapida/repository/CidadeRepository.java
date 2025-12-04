@@ -24,4 +24,12 @@ public interface CidadeRepository extends JpaRepository<Cidade, UUID> {
             FROM Cidade c WHERE LOWER(c.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
             """)
     List<Cidade> buscarCidadesPorNomeContaining(String nome);
+
+    @Query("""
+            SELECT new Cidade(c.id, c.nome) 
+            FROM Cidade c 
+            WHERE c.estado.id = :estadoId 
+             AND LOWER(c.nome) LIKE LOWER (CONCAT('%', :nomeCidade, '%'))
+            """)
+    List<Cidade> buscarCidadePorEstadoENome(UUID estadoId, String nomeCidade);
 }
