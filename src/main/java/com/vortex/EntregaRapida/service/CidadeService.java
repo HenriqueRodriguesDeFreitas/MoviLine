@@ -9,6 +9,7 @@ import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.repository.EstadoRepository;
+import com.vortex.EntregaRapida.service.validation.CidadeValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -36,7 +37,7 @@ public class CidadeService {
 
         List<Cidade> cidadesCadastradas = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
 
-        if (verificarEstadoJaPossuiCidade(dto.nome(), cidadesCadastradas)) {
+        if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesCadastradas)) {
             throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com esse nome.");
         }
 
@@ -52,7 +53,7 @@ public class CidadeService {
 
         List<Cidade> cidadesNoEstado = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
 
-        if (verificarEstadoJaPossuiCidade(dto.nome(), cidadesNoEstado, cidadeEncontrada)) {
+        if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesNoEstado, cidadeEncontrada)) {
             throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com o nome passado.");
         }
 
@@ -87,19 +88,6 @@ public class CidadeService {
     private Estado retornaEstadoComIdPassado(UUID estadoId) {
         return estadoRepository.buscarEstadoSimplesPorId(estadoId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
-    }
-
-    //Usado no serviço para cadastrar cidade
-    private boolean verificarEstadoJaPossuiCidade(String nomeNovaCidade, List<Cidade> cidades) {
-        return cidades.stream()
-                .anyMatch(c -> c.getNome().equalsIgnoreCase(nomeNovaCidade));
-    }
-
-    //Usado no serviço para atualizar cidade
-    private boolean verificarEstadoJaPossuiCidade(String novoNome, List<Cidade> cidades, Cidade cidadeEncontrada) {
-        return cidades.stream()
-                .anyMatch(c -> !c.getId().equals(cidadeEncontrada.getId())
-                        && c.getNome().equalsIgnoreCase(novoNome));
     }
 
     private Cidade retornaCidadeComIdPassado(UUID cidadeId) {
