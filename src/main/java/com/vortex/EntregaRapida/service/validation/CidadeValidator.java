@@ -3,6 +3,7 @@ package com.vortex.EntregaRapida.service.validation;
 import com.vortex.EntregaRapida.model.Cidade;
 
 import java.util.List;
+import java.util.UUID;
 
 
 public final class CidadeValidator {
