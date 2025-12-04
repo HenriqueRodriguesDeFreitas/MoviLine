@@ -1,6 +1,8 @@
 package com.vortex.EntregaRapida.controller;
 
 import com.vortex.EntregaRapida.docs.ErroExamples;
+import com.vortex.EntregaRapida.dto.request.CidadePorIdRequestDto;
+import com.vortex.EntregaRapida.dto.request.CidadePorNomeRequestDto;
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
@@ -12,7 +14,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -128,8 +129,8 @@ public class CidadeController {
                             )))
     })
     public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
-            @PathVariable("nome") String nome) {
-        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(nome));
+          @RequestBody @Valid CidadePorNomeRequestDto dto) {
+        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto));
     }
 
     @GetMapping("/{id}")
@@ -159,9 +160,9 @@ public class CidadeController {
         return ResponseEntity.ok(cidadeService.buscarCidadePorId(id));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarCidade(@PathVariable("id") UUID cidadeId) {
-        cidadeService.deletarCidade(cidadeId);
+    @DeleteMapping
+    public ResponseEntity<Void> deletarCidade(@RequestBody @Valid CidadePorIdRequestDto dto) {
+        cidadeService.deletarCidade(dto);
         return ResponseEntity.noContent().build();
     }
 }
