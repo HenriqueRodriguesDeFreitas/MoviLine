@@ -39,7 +39,7 @@ class CidadeServiceTest {
 
     private Estado estado;
     private Cidade cidade;
-    private UUID idPadrao = UUID.randomUUID();
+    private final UUID idPadrao = UUID.randomUUID();
     private CidadeRequestDto requestDto;
 
     @BeforeEach
