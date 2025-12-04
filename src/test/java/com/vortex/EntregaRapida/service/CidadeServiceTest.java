@@ -1,5 +1,6 @@
 package com.vortex.EntregaRapida.service;
 
+import com.vortex.EntregaRapida.dto.request.CidadePorIdRequestDto;
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
@@ -176,5 +177,53 @@ class CidadeServiceTest {
         verify(cidadeRepository, times(1)).buscarCidadesPorEstado(any(UUID.class));
         verify(cidadeRepository, never()).save(any(Cidade.class));
         verify(cidadeMapper, never()).toResponse(any(Cidade.class));
+    }
+
+    @Test
+    void deletarCidade_deveRetornaVoid_quandoSucesso(){
+        CidadePorIdRequestDto dto =
+                new CidadePorIdRequestDto(estado.getId(), cidade.getId());
+
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao))
+                .thenReturn(Optional.of(estado));
+        when(cidadeRepository.buscarCidadeSimplesPorId(idPadrao))
+                .thenReturn(Optional.of(cidade));
+        when(cidadeRepository.buscarCidadesPorEstado(estado.getId()))
+                .thenReturn(List.of(cidade));
+
+        cidadeService.deletarCidade(dto);
+        verify(cidadeRepository, times(1)).delete(cidade);
+    }
+
+    @Test
+    void deletarCidade_deveRetornaConflitoEntidadeInexistente_quandoEstadoeNaoEncontrada(){
+        CidadePorIdRequestDto dto =
+                new CidadePorIdRequestDto(estado.getId(), cidade.getId());
+
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao))
+                .thenReturn(Optional.empty());
+
+        ConflitoEntidadeInexistente exception =
+                assertThrows(ConflitoEntidadeInexistente.class,
+                        () -> cidadeService.deletarCidade(dto));
+        assertEquals("Nenhum estado encontrado com o id passado.", exception.getMessage());
+    }
+
+    @Test
+    void deletarCidade_deveRetornaConflitoEntidadeInexistente_quandoCidadeNaoEncontrada(){
+        CidadePorIdRequestDto dto =
+                new CidadePorIdRequestDto(estado.getId(), cidade.getId());
+
+        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao))
+                .thenReturn(Optional.of(estado));
+        when(cidadeRepository.buscarCidadeSimplesPorId(idPadrao))
+                .thenReturn(Optional.of(cidade));
+        when(cidadeRepository.buscarCidadesPorEstado(estado.getId()))
+                .thenReturn(new ArrayList<>());
+
+        ConflitoEntidadeInexistente exception =
+                assertThrows(ConflitoEntidadeInexistente.class,
+                        () -> cidadeService.deletarCidade(dto));
+        assertEquals("O estado não possui a cidade pesquisada.", exception.getMessage());
     }
 }
