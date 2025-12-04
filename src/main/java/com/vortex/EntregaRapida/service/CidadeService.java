@@ -1,5 +1,7 @@
 package com.vortex.EntregaRapida.service;
 
+import com.vortex.EntregaRapida.dto.request.CidadePorIdRequestDto;
+import com.vortex.EntregaRapida.dto.request.CidadePorNomeRequestDto;
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
@@ -35,7 +37,7 @@ public class CidadeService {
     public CidadeResponseDto cadastrarCidade(CidadeRequestDto dto) {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
 
-        List<Cidade> cidadesCadastradas = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
+        List<Cidade> cidadesCadastradas = retornaCidadesDeUmEstado(estadoEncontrado);
 
         if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesCadastradas)) {
             throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com esse nome.");
@@ -51,7 +53,7 @@ public class CidadeService {
 
         Cidade cidadeEncontrada = retornaCidadeComIdPassado(cidadeId);
 
-        List<Cidade> cidadesNoEstado = cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
+        List<Cidade> cidadesNoEstado = retornaCidadesDeUmEstado(estadoEncontrado);
 
         if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesNoEstado, cidadeEncontrada)) {
             throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com o nome passado.");
@@ -93,5 +95,9 @@ public class CidadeService {
     private Cidade retornaCidadeComIdPassado(UUID cidadeId) {
         return cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o Id passado."));
+    }
+
+    private List<Cidade> retornaCidadesDeUmEstado(Estado estadoEncontrado) {
+        return cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
     }
 }
