@@ -106,7 +106,7 @@ public class CidadeController {
         return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado));
     }
 
-    @GetMapping("/nome/{nome}")
+    @GetMapping("/nome")
     @Operation(summary = "Busca cidade por nome",
             description = "Busca cidade por nome, retorna todos que tenha os caracteres passados.")
     @ApiResponses(value = {
