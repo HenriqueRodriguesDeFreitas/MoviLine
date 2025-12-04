@@ -10,7 +10,7 @@ import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
-import com.vortex.EntregaRapida.repository.EstadoRepository;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
 import com.vortex.EntregaRapida.service.validation.CidadeValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
@@ -22,20 +22,22 @@ import java.util.UUID;
 public class CidadeService {
 
     private final CidadeRepository cidadeRepository;
-    private final EstadoRepository estadoRepository;
     private final CidadeMapper cidadeMapper;
+    private final CidadeEstadoValidation cidadeEstadoValidation;
 
     public CidadeService(CidadeRepository cidadeRepository,
-                         EstadoRepository estadoRepository,
-                         CidadeMapper cidadeMapper) {
+                         CidadeMapper cidadeMapper,
+                         CidadeEstadoValidation cidadeEstadoValidation) {
         this.cidadeRepository = cidadeRepository;
-        this.estadoRepository = estadoRepository;
         this.cidadeMapper = cidadeMapper;
+        this.cidadeEstadoValidation = cidadeEstadoValidation;
     }
 
     @Transactional
     public CidadeResponseDto cadastrarCidade(CidadeRequestDto dto) {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
+
+        excecaoCasoObjetoNulo(estadoEncontrado, "estado");
 
         List<Cidade> cidadesCadastradas = retornaCidadesDeUmEstado(estadoEncontrado);
 
@@ -50,8 +52,10 @@ public class CidadeService {
     @Transactional
     public CidadeResponseDto atualizarCidade(UUID cidadeId, CidadeRequestDto dto) {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
+        excecaoCasoObjetoNulo(estadoEncontrado, "estado");
 
         Cidade cidadeEncontrada = retornaCidadeComIdPassado(cidadeId);
+        excecaoCasoObjetoNulo(cidadeEncontrada, "cidade");
 
         List<Cidade> cidadesNoEstado = retornaCidadesDeUmEstado(estadoEncontrado);
 
@@ -88,7 +92,10 @@ public class CidadeService {
 
     public void deletarCidade(CidadePorIdRequestDto dto) {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
+        excecaoCasoObjetoNulo(estado, "estado");
+
         var cidade = retornaCidadeComIdPassado(dto.cidadeId());
+        excecaoCasoObjetoNulo(cidade, "cidade");
 
         List<Cidade> cidades = retornaCidadesDeUmEstado(estado);
         if (!CidadeValidator.estadoPossuiCidade(cidade.getId(), cidades)) {
@@ -99,16 +106,21 @@ public class CidadeService {
     }
 
     private Estado retornaEstadoComIdPassado(UUID estadoId) {
-        return estadoRepository.buscarEstadoSimplesPorId(estadoId)
-                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
+        return cidadeEstadoValidation.validaEstadoPorId(estadoId);
     }
 
     private Cidade retornaCidadeComIdPassado(UUID cidadeId) {
-        return cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
-                .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o Id passado."));
+        return cidadeEstadoValidation.validaCidadePorId(cidadeId);
     }
 
     private List<Cidade> retornaCidadesDeUmEstado(Estado estadoEncontrado) {
-        return cidadeRepository.buscarCidadesPorEstado(estadoEncontrado.getId());
+        return cidadeEstadoValidation.validarRetornaCidadeDoEstado(estadoEncontrado);
+    }
+
+    private static void excecaoCasoObjetoNulo(Object objetoBuscado, String nomeObjeto) {
+        String msg = nomeObjeto +" não encontrado com o id passado.";
+        if (objetoBuscado == null) {
+            throw new ConflitoEntidadeInexistente(msg);
+        }
     }
 }
