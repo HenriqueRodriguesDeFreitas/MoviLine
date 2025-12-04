@@ -23,6 +23,13 @@ public class Bairro {
     public Bairro() {
     }
 
+    public Bairro(UUID id, String nome) {
+        if (nome == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo.");
+        if (id == null) throw new IllegalArgumentException("id do bairro não pode ser nulo.");
+        this.id = id;
+        this.nome = nome;
+    }
+
     public Bairro(UUID id, String nome, Cidade cidade) {
         if (nome == null) throw new IllegalArgumentException("Nome do bairro não pode ser nulo");
         if (cidade == null) throw new IllegalArgumentException("Bairro precisa ser vinculado a uma cidade");
