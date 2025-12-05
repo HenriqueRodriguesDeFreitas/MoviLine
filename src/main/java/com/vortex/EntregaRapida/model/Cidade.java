@@ -19,7 +19,7 @@ public class Cidade {
     @JoinColumn(name = "estado_id", nullable = false)
     private Estado estado;
 
-    @OneToMany(mappedBy = "cidade", orphanRemoval = true)
+    @OneToMany(mappedBy = "cidade", orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Bairro> bairros;
 
     public Cidade() {

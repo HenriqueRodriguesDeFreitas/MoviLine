@@ -16,7 +16,8 @@ public class Estado {
     @Column(name = "nome", length = 19, nullable = false, unique = true)
     private String nome;
 
-    @OneToMany(mappedBy = "estado", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @OneToMany(mappedBy = "estado", cascade = {CascadeType.PERSIST, CascadeType.MERGE},
+            fetch = FetchType.LAZY)
     private List<Cidade> cidades;
 
     public Estado(){}
