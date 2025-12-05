@@ -37,11 +37,7 @@ public class CidadeService {
     public CidadeResponseDto cadastrarCidade(CidadeRequestDto dto) {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
 
-        excecaoCasoObjetoNulo(estadoEncontrado, "estado");
-
-        List<Cidade> cidadesCadastradas = retornaCidadesDeUmEstado(estadoEncontrado);
-
-        if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesCadastradas)) {
+        if (cidadeEstadoValidation.estadoPossuiCidadeComNomePassado(dto.nome(), estadoEncontrado.getId())) {
             throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com esse nome.");
         }
 
