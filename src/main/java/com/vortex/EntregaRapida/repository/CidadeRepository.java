@@ -2,34 +2,20 @@ package com.vortex.EntregaRapida.repository;
 
 import com.vortex.EntregaRapida.model.Cidade;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 public interface CidadeRepository extends JpaRepository<Cidade, UUID> {
-    @Query("""
-             SELECT new Cidade(c.id, c.nome) FROM Cidade c WHERE c.estado.id = :estadoId
-            """)
-    List<Cidade> buscarCidadesPorEstado(UUID estadoId);
+    List<Cidade> findByEstadoId(UUID estadoId);
 
-    @Query("""
-            SELECT new Cidade(c.id, c.nome) FROM Cidade c WHERE c.id = :cidadeId
-            """)
-    Optional<Cidade> buscarCidadeSimplesPorId(UUID cidadeId);
+    List<Cidade> findByNomeContainingIgnoreCase(String nome);
 
-    @Query("""
-            SELECT new Cidade(c.id, c.nome) 
-            FROM Cidade c WHERE LOWER(c.nome) LIKE LOWER(CONCAT('%', :nome, '%'))
-            """)
-    List<Cidade> buscarCidadesPorNomeContaining(String nome);
+    List<Cidade> findByEstadoIdAndNomeIgnoreCase(UUID estadoId, String nomeCidade);
 
-    @Query("""
-            SELECT new Cidade(c.id, c.nome) 
-            FROM Cidade c 
-            WHERE c.estado.id = :estadoId 
-             AND LOWER(c.nome) LIKE LOWER (CONCAT('%', :nomeCidade, '%'))
-            """)
-    List<Cidade> buscarCidadePorEstadoENome(UUID estadoId, String nomeCidade);
+    boolean existsByIdAndEstadoId(UUID cidadeId, UUID estadoId);
+
+    boolean existsByNomeIgnoreCaseAndEstadoId(String nome, UUID estadoId);
+
+    boolean existsByNomeIgnoreCaseAndEstadoIdAndIdNot(String nome, UUID id, UUID id1);
 }
