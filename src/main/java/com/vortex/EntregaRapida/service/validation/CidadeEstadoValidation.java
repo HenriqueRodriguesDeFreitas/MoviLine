@@ -23,18 +23,34 @@ public class CidadeEstadoValidation {
     }
 
     public Estado validaEstadoPorId(UUID estadoId) {
-        return estadoRepository.buscarEstadoSimplesPorId(estadoId)
+        return estadoRepository.findById(estadoId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
 
     }
 
     public Cidade validaCidadePorId(UUID cidadeId) {
-        return cidadeRepository.buscarCidadeSimplesPorId(cidadeId)
+        return cidadeRepository.findById(cidadeId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o Id passado."));
     }
 
-    public List<Cidade> validarRetornaCidadeDoEstado(Estado estado) {
-        return cidadeRepository.buscarCidadesPorEstado(estado.getId());
+    public List<Cidade> retornaCidadesDoEstado(Estado estado) {
+        return cidadeRepository.findByEstadoId(estado.getId());
+    }
+
+    /*Usar para o cadastro de uma nova cidade
+     * Verifica se estado já possui uma cidade com nome passado.*/
+    public boolean estadoPossuiCidadeComNomePassado(String nomeNovaCidade, UUID estadoId) {
+        return cidadeRepository.existsByNomeIgnoreCaseAndEstadoId(nomeNovaCidade, estadoId);
+    }
+
+    /*Usar para metodo de deletar
+     * Verifica se o estado já possui uma cidade com o id passado*/
+    public boolean estadoPossuiCidadeComIdPassado(UUID cidadeId, UUID estadoId) {
+        return cidadeRepository.existsByIdAndEstadoId(cidadeId, estadoId);
+    }
+
+    public boolean existeOutraCidadeComMesmoNome(String nome, UUID estadoId, UUID cidadeIdAtual) {
+        return cidadeRepository.existsByNomeIgnoreCaseAndEstadoIdAndIdNot(nome, estadoId, cidadeIdAtual);
     }
 
 
