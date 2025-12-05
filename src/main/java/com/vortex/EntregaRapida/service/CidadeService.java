@@ -11,7 +11,6 @@ import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
-import com.vortex.EntregaRapida.service.validation.CidadeValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -48,17 +47,26 @@ public class CidadeService {
     @Transactional
     public CidadeResponseDto atualizarCidade(UUID cidadeId, CidadeRequestDto dto) {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
-        excecaoCasoObjetoNulo(estadoEncontrado, "estado");
-
         Cidade cidadeEncontrada = retornaCidadeComIdPassado(cidadeId);
-        excecaoCasoObjetoNulo(cidadeEncontrada, "cidade");
 
-        List<Cidade> cidadesNoEstado = retornaCidadesDeUmEstado(estadoEncontrado);
-
-        if (CidadeValidator.estadoPossuiCidade(dto.nome(), cidadesNoEstado, cidadeEncontrada)) {
-            throw new ConflitoDeEntidadeException("Este estado já possui uma cidade com o nome passado.");
+        if (!cidadeEstadoValidation.estadoPossuiCidadeComIdPassado
+                (cidadeEncontrada.getId(), estadoEncontrado.getId())) {
+            throw new ConflitoEntidadeInexistente(
+                    "O estado informado não possui a cidade passada."
+            );
         }
 
+        boolean nomeAlterado = !cidadeEncontrada.getNome()
+                .equalsIgnoreCase(dto.nome());
+
+        if (nomeAlterado) {
+            if (cidadeEstadoValidation.existeOutraCidadeComMesmoNome(
+                    dto.nome(), estadoEncontrado.getId(), cidadeEncontrada.getId())) {
+                throw new ConflitoDeEntidadeException(
+                        "Este estado já possui uma cidade com o nome passado."
+                );
+            }
+        }
         cidadeEncontrada.setNome(dto.nome());
         cidadeEncontrada.setEstado(estadoEncontrado);
 
