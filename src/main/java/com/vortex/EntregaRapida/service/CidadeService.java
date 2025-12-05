@@ -74,7 +74,7 @@ public class CidadeService {
     }
 
     public List<CidadeResponseDto> buscarTodasCidadeDeUmEstado(UUID idEstado) {
-        List<Cidade> cidades = cidadeRepository.buscarCidadesPorEstado(idEstado);
+        List<Cidade> cidades = cidadeRepository.findByEstadoId(idEstado);
         return cidades.stream()
                 .map(cidadeMapper::toResponse).toList();
     }
@@ -83,7 +83,7 @@ public class CidadeService {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
 
         List<Cidade> cidades = cidadeRepository
-                .buscarCidadePorEstadoENome(estado.getId(), dto.cidadeNome());
+                .findByEstadoIdAndNomeIgnoreCase(estado.getId(), dto.cidadeNome());
 
         return cidades.stream()
                 .map(cidadeMapper::toResponse).toList();
@@ -96,13 +96,9 @@ public class CidadeService {
 
     public void deletarCidade(CidadePorIdRequestDto dto) {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
-        excecaoCasoObjetoNulo(estado, "estado");
-
         var cidade = retornaCidadeComIdPassado(dto.cidadeId());
-        excecaoCasoObjetoNulo(cidade, "cidade");
 
-        List<Cidade> cidades = retornaCidadesDeUmEstado(estado);
-        if (!CidadeValidator.estadoPossuiCidade(cidade.getId(), cidades)) {
+        if (!cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(cidade.getId(), estado.getId())) {
             throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
         } else {
             cidadeRepository.delete(cidade);
@@ -117,14 +113,4 @@ public class CidadeService {
         return cidadeEstadoValidation.validaCidadePorId(cidadeId);
     }
 
-    private List<Cidade> retornaCidadesDeUmEstado(Estado estadoEncontrado) {
-        return cidadeEstadoValidation.validarRetornaCidadeDoEstado(estadoEncontrado);
-    }
-
-    private static void excecaoCasoObjetoNulo(Object objetoBuscado, String nomeObjeto) {
-        String msg = nomeObjeto +" não encontrado com o id passado.";
-        if (objetoBuscado == null) {
-            throw new ConflitoEntidadeInexistente(msg);
-        }
-    }
 }
