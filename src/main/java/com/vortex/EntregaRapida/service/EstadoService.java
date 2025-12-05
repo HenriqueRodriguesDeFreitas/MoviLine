@@ -41,7 +41,7 @@ public class EstadoService {
 
     @Transactional
     public EstadoResponseDto atualizarEstado(UUID idEstado, String novoNome) {
-        Estado estado = estadoRepository.buscarEstadoSimplesPorId(idEstado)
+        Estado estado = estadoRepository.findById(idEstado)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
 
         estadoRepository.findByNomeIgnoreCase(novoNome)
@@ -55,20 +55,20 @@ public class EstadoService {
     }
 
     public List<EstadoResponseDto> buscarEstadoPorNome(String nome) {
-        List<Estado> estados = estadoRepository.buscarEstadoPorNomeContaining(nome);
+        List<Estado> estados = estadoRepository.findByNomeIgnoreCaseContaining(nome);
         return estados.stream()
                 .map(estadoMapper::toResponse).toList();
     }
 
     public List<EstadoResponseDto> buscarTodosEstados() {
-        List<Estado> estados = estadoRepository.buscarTodosEstadosSimples();
+        List<Estado> estados = estadoRepository.findAll();
 
         return estados.stream()
                 .map(estadoMapper::toResponse).toList();
     }
 
     public EstadoResponseDto buscarEstadoPorId(UUID idEstado) {
-        Estado estado = estadoRepository.buscarEstadoSimplesPorId(idEstado)
+        Estado estado = estadoRepository.findById(idEstado)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id: " + idEstado));
         return estadoMapper.toResponse(estado);
     }
