@@ -79,7 +79,7 @@ class EstadoServiceTest {
 
     @Test
     void atualizarEstado_casoIdEncontrado_casoNomeNaoCadastrado_deveAtualizarEstado() {
-        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.of(estado));
+        when(estadoRepository.findById(idPadrao)).thenReturn(Optional.of(estado));
         when(estadoRepository.findByNomeIgnoreCase(anyString())).thenReturn(Optional.empty());
         when(estadoRepository.save(any(Estado.class))).thenReturn(estado);
         when(estadoMapper.toResponse(any())).thenAnswer(invocation -> {
@@ -97,13 +97,13 @@ class EstadoServiceTest {
 
     @Test
     void atualizarEstado_casoNaoIdEncontrado_deveRetornarErro() {
-        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.empty());
+        when(estadoRepository.findById(idPadrao)).thenReturn(Optional.empty());
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
                 () -> estadoService.atualizarEstado(idPadrao, "Paraná"));
 
         assertEquals("Nenhum estado encontrado com o id passado.", exception.getMessage());
-        verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
+        verify(estadoRepository, times(1)).findById(idPadrao);
         verifyNoMoreInteractions(estadoRepository);
     }
 
@@ -112,18 +112,16 @@ class EstadoServiceTest {
         estado.setNome("Pará");
         Estado outroEstado = new Estado(UUID.randomUUID(), "Amazonas");
 
-        when(estadoRepository.buscarEstadoSimplesPorId(idPadrao)).thenReturn(Optional.of(estado));
+        when(estadoRepository.findById(idPadrao)).thenReturn(Optional.of(estado));
         when(estadoRepository.findByNomeIgnoreCase("Amazonas")).thenReturn(Optional.of(outroEstado));
 
         ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
                 () -> estadoService.atualizarEstado(idPadrao, "Amazonas"));
 
         assertEquals("Já existe estado com o nome passado.", exception.getMessage());
-        verify(estadoRepository, times(1)).buscarEstadoSimplesPorId(idPadrao);
+        verify(estadoRepository, times(1)).findById(idPadrao);
         verify(estadoRepository, times(1)).findByNomeIgnoreCase(anyString());
         verifyNoMoreInteractions(estadoRepository);
         verifyNoInteractions(estadoMapper);
     }
-
-
 }
