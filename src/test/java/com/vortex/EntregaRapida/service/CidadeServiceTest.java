@@ -17,9 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,7 +54,7 @@ class CidadeServiceTest {
     @Test
     void cadastrarCidade_deveRetornarCidadeResponseDto_quandoSucesso() {
         when(cidadeEstadoValidation.validaEstadoPorId(idPadrao)).thenReturn(estado);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado)).thenReturn(new ArrayList<>());
+        when(cidadeEstadoValidation.estadoPossuiCidadeComNomePassado("Breves", idPadrao)).thenReturn(false);
         when(cidadeRepository.save(any(Cidade.class))).thenReturn(cidade);
         when(cidadeMapper.toResponse(any())).thenAnswer(invocation -> {
             Cidade c = invocation.getArgument(0);
@@ -69,19 +67,19 @@ class CidadeServiceTest {
         assertEquals(responseDto.id(), cidade.getId(), "Ids não coincidem");
         assertEquals(responseDto.nome(), cidade.getNome(), "Nomes não coincidem");
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(idPadrao);
-        verify(cidadeEstadoValidation, times(1)).validarRetornaCidadeDoEstado(estado);
+        verify(cidadeEstadoValidation, times(1)).estadoPossuiCidadeComNomePassado(eq("Breves"), eq(idPadrao));
         verify(cidadeRepository, times(1)).save(any(Cidade.class));
         verify(cidadeMapper, times(1)).toResponse(any(Cidade.class));
     }
 
     @Test
     void cadastrarCidade_deveRetornarConflitoEntidadeInexistente_quandoEstadoInexistente() {
-        when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenReturn(null);
+        when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenThrow(new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
                 () -> cidadeService.cadastrarCidade(requestDto));
 
-        assertEquals("estado não encontrado com o id passado.", exception.getMessage(), "Mensagens de erro não coincidem");
+        assertEquals("Nenhum estado encontrado com o id passado.", exception.getMessage(), "Mensagens de erro não coincidem");
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verifyNoMoreInteractions(cidadeEstadoValidation);
         verifyNoInteractions(cidadeRepository);
@@ -90,14 +88,14 @@ class CidadeServiceTest {
     @Test
     void cadastrarCidade_deveRetornarConflitoDeEntidadeException_quandoEstadoJaPossuiCidadeComMesmoNome() {
         when(cidadeEstadoValidation.validaEstadoPorId(idPadrao)).thenReturn(estado);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado)).thenReturn(List.of(cidade));
+        when(cidadeEstadoValidation.estadoPossuiCidadeComNomePassado("Breves", estado.getId())).thenReturn(true);
 
         ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
                 () -> cidadeService.cadastrarCidade(requestDto));
 
         assertEquals("Este estado já possui uma cidade com esse nome.", exception.getMessage());
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(idPadrao);
-        verify(cidadeEstadoValidation, times(1)).validarRetornaCidadeDoEstado(estado);
+        verify(cidadeEstadoValidation, times(1)).estadoPossuiCidadeComNomePassado(eq("Breves"), eq(estado.getId()));
         verify(cidadeMapper, never()).toResponse(any());
         verify(cidadeRepository, never()).save(any());
         verifyNoMoreInteractions(cidadeEstadoValidation);
@@ -108,13 +106,21 @@ class CidadeServiceTest {
         CidadeRequestDto novoRequest = new CidadeRequestDto("Melgaço", idPadrao);
 
         when(cidadeEstadoValidation.validaEstadoPorId(idPadrao)).thenReturn(estado);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado)).thenReturn(new ArrayList<>());
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao)).thenReturn(cidade);
-        when(cidadeRepository.save(any(Cidade.class))).thenReturn(cidade);
+        // estado possui a cidade buscada pelo ID
+        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(estado.getId(), cidade.getId()))
+                .thenReturn(true);
+        // nome NÃO é duplicado no estado
+        when(cidadeEstadoValidation.existeOutraCidadeComMesmoNome(
+                "Melgaço", estado.getId(), cidade.getId()))
+                .thenReturn(false);
+
+
         when(cidadeMapper.toResponse(any(Cidade.class))).thenAnswer(invocation -> {
             Cidade cidade = invocation.getArgument(0);
             return new CidadeResponseDto(cidade.getId(), cidade.getNome());
         });
+        when(cidadeRepository.save(any(Cidade.class))).thenReturn(cidade);
 
         CidadeResponseDto responseDto = cidadeService.atualizarCidade(idPadrao, novoRequest);
 
@@ -123,7 +129,7 @@ class CidadeServiceTest {
         assertEquals(responseDto.nome(), cidade.getNome(), "Nomes não coincidem");
         assertEquals(cidade.getEstado(), estado, "Estados não coincidem");
         verify(cidadeEstadoValidation, times(1)).validaCidadePorId(any(UUID.class));
-        verify(cidadeEstadoValidation, times(1)).validarRetornaCidadeDoEstado(estado);
+        verify(cidadeEstadoValidation, times(1)).estadoPossuiCidadeComIdPassado(eq(cidade.getId()), eq(estado.getId()));
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verify(cidadeRepository, times(1)).save(any(Cidade.class));
         verify(cidadeMapper, times(1)).toResponse(any(Cidade.class));
@@ -131,7 +137,8 @@ class CidadeServiceTest {
 
     @Test
     void atualizarCidade_deveRetornarConflitoEntidadeInexistente_quandoEstadoInexistente() {
-        when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenReturn(null);
+        when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class)))
+                .thenThrow(new ConflitoEntidadeInexistente("estado não encontrado com o id passado."));
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
                 () -> cidadeService.atualizarCidade(idPadrao, requestDto));
@@ -145,15 +152,16 @@ class CidadeServiceTest {
     @Test
     void atualizarCidade_deveRetornarConflitoEntidadeInexistente_quandoCidadeInexistente() {
         when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenReturn(estado);
-        when(cidadeEstadoValidation.validaCidadePorId(any(UUID.class))).thenReturn(null);
+        when(cidadeEstadoValidation.validaCidadePorId(any(UUID.class)))
+                .thenThrow(new ConflitoEntidadeInexistente("Nenhuma cidade encontrada com o Id passado."));
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
                 () -> cidadeService.atualizarCidade(idPadrao, requestDto));
 
-        assertEquals("cidade não encontrado com o id passado.", exception.getMessage());
+        assertEquals("Nenhuma cidade encontrada com o Id passado.", exception.getMessage());
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verify(cidadeEstadoValidation, times(1)).validaCidadePorId(any(UUID.class));
-        verify(cidadeEstadoValidation, never()).validarRetornaCidadeDoEstado(any(Estado.class));
+        verify(cidadeEstadoValidation, never()).retornaCidadesDoEstado(any(Estado.class));
         verify(cidadeRepository, never()).save(any(Cidade.class));
         verify(cidadeMapper, never()).toResponse(any(Cidade.class));
 
@@ -161,20 +169,26 @@ class CidadeServiceTest {
 
     @Test
     void atualizarCidade_deveRetornarConflitoDeEntidadeException_quandoEstadoJaPossuiCidadeComMesmoNome() {
-        Cidade outraCidade = new Cidade(UUID.randomUUID(), "Breves");
+        Cidade outraCidade = new Cidade(UUID.randomUUID(), "Melgaço");
         estado.setCidades(List.of(outraCidade));
+
+        CidadeRequestDto dtoNovo = new CidadeRequestDto("Melgaço", estado.getId());
 
         when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(any(UUID.class))).thenReturn(cidade);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado)).thenReturn(List.of(outraCidade));
+        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado
+                (estado.getId(), cidade.getId())).thenReturn(true);
+        when(cidadeEstadoValidation.existeOutraCidadeComMesmoNome(
+                "Melgaço", cidade.getId(), estado.getId()))
+                .thenReturn(true);
+
 
         ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
-                () -> cidadeService.atualizarCidade(idPadrao, requestDto));
+                () -> cidadeService.atualizarCidade(idPadrao, dtoNovo));
 
         assertEquals("Este estado já possui uma cidade com o nome passado.", exception.getMessage());
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verify(cidadeEstadoValidation, times(1)).validaCidadePorId(any(UUID.class));
-        verify(cidadeEstadoValidation, times(1)).validarRetornaCidadeDoEstado(any(Estado.class));
         verify(cidadeRepository, never()).save(any(Cidade.class));
         verify(cidadeMapper, never()).toResponse(any(Cidade.class));
     }
@@ -188,8 +202,8 @@ class CidadeServiceTest {
                 .thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao))
                 .thenReturn(cidade);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado))
-                .thenReturn(List.of(cidade));
+        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(dto.cidadeId(), dto.estadoId()))
+                .thenReturn(true);
 
         cidadeService.deletarCidade(dto);
         verify(cidadeRepository, times(1)).delete(cidade);
@@ -201,12 +215,12 @@ class CidadeServiceTest {
                 new CidadePorIdRequestDto(estado.getId(), cidade.getId());
 
         when(cidadeEstadoValidation.validaEstadoPorId(idPadrao))
-                .thenReturn(null);
+                .thenThrow(new ConflitoEntidadeInexistente("Nenhum estado encontrado com o id passado."));
 
         ConflitoEntidadeInexistente exception =
                 assertThrows(ConflitoEntidadeInexistente.class,
                         () -> cidadeService.deletarCidade(dto));
-        assertEquals("estado não encontrado com o id passado.", exception.getMessage());
+        assertEquals("Nenhum estado encontrado com o id passado.", exception.getMessage());
     }
 
     @Test
@@ -218,8 +232,9 @@ class CidadeServiceTest {
                 .thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao))
                 .thenReturn(cidade);
-        when(cidadeEstadoValidation.validarRetornaCidadeDoEstado(estado))
-                .thenReturn(new ArrayList<>());
+        when(cidadeEstadoValidation
+                .estadoPossuiCidadeComIdPassado(dto.cidadeId(), dto.estadoId()))
+                .thenReturn(false);
 
         ConflitoEntidadeInexistente exception =
                 assertThrows(ConflitoEntidadeInexistente.class,
