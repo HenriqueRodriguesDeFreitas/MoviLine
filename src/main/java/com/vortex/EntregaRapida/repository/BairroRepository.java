@@ -10,5 +10,5 @@ import java.util.UUID;
 public interface BairroRepository extends JpaRepository<Bairro, UUID> {
     List<Bairro> findByNomeContainingIgnoreCase(String nome);
 
-    List<Bairro> findByNomeAndCidadeId(String nome, UUID cidadeId);
+    boolean existsByNomeIgnoreCaseAndCidadeId(String nome, UUID cidadeId);
 }
