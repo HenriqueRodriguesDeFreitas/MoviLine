@@ -49,10 +49,12 @@ public class CidadeService {
         Estado estadoEncontrado = retornaEstadoComIdPassado(dto.idEstado());
         Cidade cidadeEncontrada = retornaCidadeComIdPassado(cidadeId);
 
-        if (!cidadeEstadoValidation.estadoPossuiCidadeComIdPassado
-                (cidadeEncontrada.getId(), estadoEncontrado.getId())) {
+        boolean validacao = cidadeEstadoValidation.validaCidadePertenceAoEstado(cidadeEncontrada.getId(),
+                estadoEncontrado.getId());
+
+        if (!validacao) {
             throw new ConflitoEntidadeInexistente(
-                    "O estado informado não possui a cidade passada."
+                    "O estado não possui a cidade informada."
             );
         }
 
@@ -98,11 +100,12 @@ public class CidadeService {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
         var cidade = retornaCidadeComIdPassado(dto.cidadeId());
 
-        if (!cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(cidade.getId(), estado.getId())) {
-            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
-        } else {
-            cidadeRepository.delete(cidade);
-        }
+       if(!cidadeEstadoValidation
+                .validaCidadePertenceAoEstado(cidade.getId(), estado.getId())){
+           throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+       }
+        cidadeRepository.delete(cidade);
+
     }
 
     private Estado retornaEstadoComIdPassado(UUID estadoId) {
