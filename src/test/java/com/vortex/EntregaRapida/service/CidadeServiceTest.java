@@ -107,10 +107,8 @@ class CidadeServiceTest {
 
         when(cidadeEstadoValidation.validaEstadoPorId(idPadrao)).thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao)).thenReturn(cidade);
-        // estado possui a cidade buscada pelo ID
-        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(estado.getId(), cidade.getId()))
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(cidade.getId(), estado.getId()))
                 .thenReturn(true);
-        // nome NÃO é duplicado no estado
         when(cidadeEstadoValidation.existeOutraCidadeComMesmoNome(
                 "Melgaço", estado.getId(), cidade.getId()))
                 .thenReturn(false);
@@ -129,7 +127,8 @@ class CidadeServiceTest {
         assertEquals(responseDto.nome(), cidade.getNome(), "Nomes não coincidem");
         assertEquals(cidade.getEstado(), estado, "Estados não coincidem");
         verify(cidadeEstadoValidation, times(1)).validaCidadePorId(any(UUID.class));
-        verify(cidadeEstadoValidation, times(1)).estadoPossuiCidadeComIdPassado(eq(cidade.getId()), eq(estado.getId()));
+        verify(cidadeEstadoValidation, times(1))
+                .validaCidadePertenceAoEstado(eq(cidade.getId()), eq(estado.getId()));
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verify(cidadeRepository, times(1)).save(any(Cidade.class));
         verify(cidadeMapper, times(1)).toResponse(any(Cidade.class));
@@ -176,8 +175,8 @@ class CidadeServiceTest {
 
         when(cidadeEstadoValidation.validaEstadoPorId(any(UUID.class))).thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(any(UUID.class))).thenReturn(cidade);
-        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado
-                (estado.getId(), cidade.getId())).thenReturn(true);
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(
+                cidade.getId(), estado.getId())).thenReturn(true);
         when(cidadeEstadoValidation.existeOutraCidadeComMesmoNome(
                 "Melgaço", cidade.getId(), estado.getId()))
                 .thenReturn(true);
@@ -189,6 +188,8 @@ class CidadeServiceTest {
         assertEquals("Este estado já possui uma cidade com o nome passado.", exception.getMessage());
         verify(cidadeEstadoValidation, times(1)).validaEstadoPorId(any(UUID.class));
         verify(cidadeEstadoValidation, times(1)).validaCidadePorId(any(UUID.class));
+        verify(cidadeEstadoValidation, times(1))
+                .validaCidadePertenceAoEstado(eq(cidade.getId()), eq(estado.getId()));
         verify(cidadeRepository, never()).save(any(Cidade.class));
         verify(cidadeMapper, never()).toResponse(any(Cidade.class));
     }
@@ -202,7 +203,7 @@ class CidadeServiceTest {
                 .thenReturn(estado);
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao))
                 .thenReturn(cidade);
-        when(cidadeEstadoValidation.estadoPossuiCidadeComIdPassado(dto.cidadeId(), dto.estadoId()))
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId()))
                 .thenReturn(true);
 
         cidadeService.deletarCidade(dto);
@@ -233,7 +234,7 @@ class CidadeServiceTest {
         when(cidadeEstadoValidation.validaCidadePorId(idPadrao))
                 .thenReturn(cidade);
         when(cidadeEstadoValidation
-                .estadoPossuiCidadeComIdPassado(dto.cidadeId(), dto.estadoId()))
+                .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId()))
                 .thenReturn(false);
 
         ConflitoEntidadeInexistente exception =
