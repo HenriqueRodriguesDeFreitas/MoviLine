@@ -43,14 +43,19 @@ public class CidadeEstadoValidation {
         return cidadeRepository.existsByNomeIgnoreCaseAndEstadoId(nomeNovaCidade, estadoId);
     }
 
-    /*Usar para metodo de deletar
-     * Verifica se o estado já possui uma cidade com o id passado*/
-    public boolean estadoPossuiCidadeComIdPassado(UUID cidadeId, UUID estadoId) {
-        return cidadeRepository.existsByIdAndEstadoId(cidadeId, estadoId);
-    }
-
     public boolean existeOutraCidadeComMesmoNome(String nome, UUID estadoId, UUID cidadeIdAtual) {
         return cidadeRepository.existsByNomeIgnoreCaseAndEstadoIdAndIdNot(nome, estadoId, cidadeIdAtual);
+    }
+
+    public boolean validaCidadePertenceAoEstado(UUID cidadeId, UUID estadoId) {
+        var cidade = validaCidadePorId(cidadeId);
+        var estado = validaEstadoPorId(estadoId);
+
+        if (!cidadeRepository.existsByIdAndEstadoId(cidade.getId(), estado.getId())) {
+            return false;
+        } else {
+            return true;
+        }
     }
 
 
