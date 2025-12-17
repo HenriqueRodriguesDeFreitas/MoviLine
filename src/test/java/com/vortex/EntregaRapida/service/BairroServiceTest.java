@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
+import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.BairroMapper;
 import com.vortex.EntregaRapida.model.Bairro;
 import com.vortex.EntregaRapida.model.Cidade;
@@ -19,8 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -85,6 +85,17 @@ class BairroServiceTest {
         verify(bairroRepository, times(1)).save(any(Bairro.class));
         verify(bairroMapper, times(1)).toResponse(any(Bairro.class));
 
+    }
+
+    @Test
+    void cadastrarBairo_deveRetornarConflitoEntidadeInexistente_quandoEstadoNaoPossuiCidade(){
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(false);
+
+        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
+                () -> bairroService.cadastrarBairro(requestDto));
+
+        assertEquals("O estado não possui a cidade pesquisada.", exception.getMessage(), "Mensagens não coincidem.");
     }
 
     @Test
