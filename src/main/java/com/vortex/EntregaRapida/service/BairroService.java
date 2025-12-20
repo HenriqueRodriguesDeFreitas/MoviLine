@@ -45,7 +45,10 @@ public class BairroService {
     @Transactional
     public BairroResponseDto atualizarBairro(UUID bairroId,
                                              BairroRequestDto dto) {
-        return bairroMapper.toResponse(new Bairro(UUID.randomUUID(), dto.nome()));
+        var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
+                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: ." + bairroId));
+
+        bairroEncontrado.setNome(dto.nome());
 
         return bairroMapper.toResponse(bairroRepository.save(bairroEncontrado));
     }
