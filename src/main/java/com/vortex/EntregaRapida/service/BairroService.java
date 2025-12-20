@@ -33,16 +33,9 @@ public class BairroService {
 
     @Transactional
     public BairroResponseDto cadastrarBairro(BairroRequestDto dto) {
-        if (!cidadeEstadoValidation
-                .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId())) {
-            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
-        }
+        verificaCidadePertenceAoEstado(dto);
 
-
-        if (bairroCidadeValidator
-                .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
-            throw new ConflitoEntidadeInexistente("Esta cidade já possui bairro com mesmo nome");
-        }
+        verificaCidadePossuiBairroComMesmoNome(dto);
 
         var cidade = cidadeEstadoValidation.validaCidadePorId(dto.cidadeId());
         Bairro novoBairro = new Bairro(dto.nome(), cidade);
@@ -54,5 +47,20 @@ public class BairroService {
                                              BairroRequestDto dto) {
         return bairroMapper.toResponse(new Bairro(UUID.randomUUID(), dto.nome()));
 
+        return bairroMapper.toResponse(bairroRepository.save(bairroEncontrado));
+    }
+
+    private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
+        if (bairroCidadeValidator
+                .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
+            throw new ConflitoEntidadeInexistente("Esta cidade já possui bairro com mesmo nome");
+        }
+    }
+
+    private void verificaCidadePertenceAoEstado(BairroRequestDto dto) {
+        if (!cidadeEstadoValidation
+                .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId())) {
+            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        }
     }
 }
