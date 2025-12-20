@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -113,6 +114,15 @@ class BairroServiceTest {
     }
 
     @Test
-    void atualizarBairro() {
+    void atualizarBairro_deveRetornarBairroResponseDto_quandoSucesso() {
+        when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.of(bairro));
+        when(bairroRepository.save(any(Bairro.class))).thenReturn(bairro);
+        when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
+            Bairro b = invocation.getArgument(0);
+            return new BairroResponseDto(b.getId(), b.getNome());
+        });
+
+        BairroResponseDto response = bairroService.atualizarBairro(idPardrao, requestDto);
+        assertNotNull(response, "O retorno não deveria ser nulo.");
     }
 }
