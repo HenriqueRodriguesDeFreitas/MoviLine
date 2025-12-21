@@ -115,7 +115,17 @@ class BairroServiceTest {
 
     @Test
     void atualizarBairro_deveRetornarBairroResponseDto_quandoSucesso() {
+        requestDto = new BairroRequestDto(
+                estado.getId(),
+                cidade.getId(),
+                "Centro"
+        );
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
         when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.of(bairro));
+        when(bairroCidadeValidator.cidadePossuiBairroComNomePassado(any(String.class), any(UUID.class)))
+                .thenReturn(false);
+        when(cidadeEstadoValidation.validaCidadePorId(any(UUID.class))).thenReturn(cidade);
         when(bairroRepository.save(any(Bairro.class))).thenReturn(bairro);
         when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
             Bairro b = invocation.getArgument(0);
