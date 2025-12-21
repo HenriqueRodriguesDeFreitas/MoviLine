@@ -45,10 +45,19 @@ public class BairroService {
     @Transactional
     public BairroResponseDto atualizarBairro(UUID bairroId,
                                              BairroRequestDto dto) {
+        verificaCidadePertenceAoEstado(dto);
+
         var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
                 () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: ." + bairroId));
 
+        if (!bairroEncontrado.getNome().equals(dto.nome())) {
+            verificaCidadePossuiBairroComMesmoNome(dto);
+        }
+
+        var cidadeEncontrada = cidadeEstadoValidation.validaCidadePorId(dto.cidadeId());
+
         bairroEncontrado.setNome(dto.nome());
+        bairroEncontrado.setCidade(cidadeEncontrada);
 
         return bairroMapper.toResponse(bairroRepository.save(bairroEncontrado));
     }
