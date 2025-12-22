@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
+import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.BairroMapper;
 import com.vortex.EntregaRapida.model.Bairro;
@@ -97,6 +98,7 @@ class BairroServiceTest {
                 () -> bairroService.cadastrarBairro(requestDto));
 
         assertEquals("O estado não possui a cidade pesquisada.", exception.getMessage(), "Mensagens não coincidem.");
+        verify(bairroRepository, never()).save(any(Bairro.class));
     }
 
     @Test
@@ -106,10 +108,10 @@ class BairroServiceTest {
         when(bairroCidadeValidator.cidadePossuiBairroComNomePassado(any(String.class), any(UUID.class)))
                 .thenReturn(true);
 
-        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
                 () -> bairroService.cadastrarBairro(requestDto));
 
-        assertEquals("Esta cidade já possui bairro com mesmo nome", exception.getMessage(), "Mensagens não coincidem.");
+        assertEquals("Esta cidade já possui bairro com mesmo nome.", exception.getMessage(), "Mensagens não coincidem.");
         verify(bairroRepository, never()).save(any(Bairro.class));
     }
 
@@ -134,5 +136,50 @@ class BairroServiceTest {
 
         BairroResponseDto response = bairroService.atualizarBairro(idPardrao, requestDto);
         assertNotNull(response, "O retorno não deveria ser nulo.");
+    }
+
+    @Test
+    void atualizarBairro_deveRetornarConflitoEntidadeInexistente_quandoEstadoNaoPossuiCidade() {
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(false);
+
+        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
+                () -> bairroService.cadastrarBairro(requestDto));
+
+        assertEquals("O estado não possui a cidade pesquisada.", exception.getMessage(), "Mensagens não coincidem.");
+        verify(bairroRepository, never()).save(any(Bairro.class));
+    }
+
+    @Test
+    void atualizarBairro_deveRetornarConflitoDeEntidadeException__quandoBairroNaoExiste() {
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
+        when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
+
+        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
+                () -> bairroService.atualizarBairro(idPardrao, requestDto));
+
+        assertEquals("Bairro não encontrado com ID: " + idPardrao, exception.getMessage(), "Mensagens não coincidem.");
+        verify(bairroRepository, never()).save(any(Bairro.class));
+    }
+
+    @Test
+    void atualizarBairro_deveRetornarConflitoEntidadeInexistente_quandoCidadePossuiBairroComMesmoNome() {
+        requestDto = new BairroRequestDto(
+                estado.getId(),
+                cidade.getId(),
+                "Centro"
+        );
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
+        when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.of(bairro));
+        when(bairroCidadeValidator.cidadePossuiBairroComNomePassado(any(String.class), any(UUID.class)))
+                .thenReturn(true);
+
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
+                () -> bairroService.atualizarBairro(idPardrao, requestDto));
+
+        assertEquals("Esta cidade já possui bairro com mesmo nome.", exception.getMessage(), "Mensagens não coincidem");
+        verify(bairroRepository, never()).save(any(Bairro.class));
     }
 }
