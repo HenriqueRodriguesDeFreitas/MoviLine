@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.ExampleObject;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
+@Tag(name = "Cidade", description = "Operações relacionadas ao cadastro e manutenções de cidades")
 @RestController
 @RequestMapping("cidade")
 public class CidadeController {
@@ -129,7 +131,7 @@ public class CidadeController {
                             )))
     })
     public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
-          @RequestBody @Valid CidadePorNomeRequestDto dto) {
+            @RequestBody @Valid CidadePorNomeRequestDto dto) {
         return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto));
     }
 
