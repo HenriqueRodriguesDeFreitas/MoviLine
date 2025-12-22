@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
+import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.BairroMapper;
 import com.vortex.EntregaRapida.model.Bairro;
@@ -48,7 +49,7 @@ public class BairroService {
         verificaCidadePertenceAoEstado(dto);
 
         var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
-                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: ." + bairroId));
+                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: " + bairroId));
 
         if (!bairroEncontrado.getNome().equals(dto.nome())) {
             verificaCidadePossuiBairroComMesmoNome(dto);
@@ -65,7 +66,7 @@ public class BairroService {
     private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
         if (bairroCidadeValidator
                 .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
-            throw new ConflitoEntidadeInexistente("Esta cidade já possui bairro com mesmo nome");
+            throw new ConflitoDeEntidadeException("Esta cidade já possui bairro com mesmo nome.");
         }
     }
 
