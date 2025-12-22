@@ -63,6 +63,12 @@ public class BairroService {
         return bairroMapper.toResponse(bairroRepository.save(bairroEncontrado));
     }
 
+    public BairroResponseDto buscarPorId(UUID bairroId) {
+        var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
+                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com o id: " + bairroId));
+        return bairroMapper.toResponse(bairroEncontrado);
+    }
+
     private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
         if (bairroCidadeValidator
                 .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
