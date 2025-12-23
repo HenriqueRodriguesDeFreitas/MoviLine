@@ -11,4 +11,6 @@ public interface BairroRepository extends JpaRepository<Bairro, UUID> {
     List<Bairro> findByNomeContainingIgnoreCase(String nome);
 
     boolean existsByNomeIgnoreCaseAndCidadeId(String nome, UUID cidadeId);
+
+    boolean existsByIdAndCidadeId(UUID bairroId, UUID cidadeId);
 }
