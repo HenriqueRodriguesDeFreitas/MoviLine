@@ -1,5 +1,6 @@
 package com.vortex.EntregaRapida.service;
 
+import com.vortex.EntregaRapida.dto.request.BairroPorIdRequestDto;
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
@@ -63,9 +64,15 @@ public class BairroService {
         return bairroMapper.toResponse(bairroRepository.save(bairroEncontrado));
     }
 
-    public BairroResponseDto buscarPorId(UUID bairroId) {
-        var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
-                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com o id: " + bairroId));
+    public BairroResponseDto buscarPorId(BairroPorIdRequestDto dto) {
+        cidadeEstadoValidation.validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId());
+
+        if (!bairroRepository.existsByIdAndCidadeId(dto.bairroId(), dto.cidadeId())) {
+            throw new ConflitoEntidadeInexistente("Esta cidade não possui o bairro informado.");
+        }
+
+        var bairroEncontrado = bairroRepository.findById(dto.bairroId()).orElseThrow(
+                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com o id: " + dto.bairroId()));
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
