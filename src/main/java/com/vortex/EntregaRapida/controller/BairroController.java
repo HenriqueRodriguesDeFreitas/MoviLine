@@ -1,6 +1,7 @@
 package com.vortex.EntregaRapida.controller;
 
 import com.vortex.EntregaRapida.docs.ErroExamples;
+import com.vortex.EntregaRapida.dto.request.BairroPorIdRequestDto;
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
@@ -84,5 +85,22 @@ public class BairroController {
     public ResponseEntity<BairroResponseDto> atualizarBairro(@PathVariable("idBairro") UUID id,
                                                              @RequestBody @Valid BairroRequestDto dto) {
         return ResponseEntity.ok(bairroService.atualizarBairro(id, dto));
+    }
+
+    @GetMapping("/{bairroId}")
+    @Operation(summary = "Busca bairro por id",
+            description = "Busca o bairro de uma cidade de acordo com seu id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso",
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = BairroResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = ErroResponseDto.class),
+                            examples = @ExampleObject(name = "Cidade não possui bairro com o id informado.",
+                                    value = ErroExamples.ERRO_404)))
+    })
+    public ResponseEntity<BairroResponseDto> buscarPorId(@RequestBody @Valid BairroPorIdRequestDto dto) {
+        return ResponseEntity.ok(bairroService.buscarPorId(dto));
     }
 }
