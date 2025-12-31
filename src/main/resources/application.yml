@@ -3,7 +3,7 @@ spring:
    name: EntregaRapida
 
   datasource:
-   url: jdbc:postgresql://localhost:5432/entregarapida
+   url: jdbc:postgresql://localhost:5432/moviline
    username: ${DB_USUARIO}
    password: ${DB_SENHA}
    driver-class-name: org.postgresql.Driver
