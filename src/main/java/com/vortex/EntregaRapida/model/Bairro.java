@@ -3,6 +3,8 @@ package com.vortex.EntregaRapida.model;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -19,6 +21,9 @@ public class Bairro {
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "cidade_id", nullable = false)
     private Cidade cidade;
+
+    @OneToMany(mappedBy = "bairro", fetch = FetchType.LAZY)
+    private List<Rua> ruas = new ArrayList<>();
 
     public Bairro() {
     }
