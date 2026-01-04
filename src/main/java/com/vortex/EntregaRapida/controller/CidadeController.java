@@ -131,7 +131,9 @@ public class CidadeController {
                             )))
     })
     public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
-            @RequestBody @Valid CidadePorNomeRequestDto dto) {
+            @RequestParam UUID estadoid,
+            @RequestParam String cidadeNome) {
+        var dto = new CidadePorNomeRequestDto(estadoid, cidadeNome);
         return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto));
     }
 
