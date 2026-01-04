@@ -5,6 +5,7 @@ import com.vortex.EntregaRapida.model.Bairro;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface BairroRepository extends JpaRepository<Bairro, UUID> {
@@ -13,4 +14,7 @@ public interface BairroRepository extends JpaRepository<Bairro, UUID> {
     boolean existsByNomeIgnoreCaseAndCidadeId(String nome, UUID cidadeId);
 
     boolean existsByIdAndCidadeId(UUID bairroId, UUID cidadeId);
+
+    Optional<Bairro> findByNomeIgnoreCaseAndCidadeId(String nomeBairro, UUID cidadeId);
+
 }
