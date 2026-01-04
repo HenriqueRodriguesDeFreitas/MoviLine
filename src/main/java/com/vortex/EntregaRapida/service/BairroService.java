@@ -75,8 +75,7 @@ public class BairroService {
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
-    public BairroResponseDto buscarBairroPorNome(String nome, UUID cidadeId, UUID estadoId){
-        var dto = new BairroRequestDto(estadoId, cidadeId, nome);
+    public BairroResponseDto buscarBairroPorNome(BairroRequestDto dto){
         verificaCidadePertenceAoEstado(dto);
 
         var bairroEncontrado = bairroRepository
