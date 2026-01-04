@@ -22,6 +22,7 @@ public class BairroService {
     private final CidadeEstadoValidation cidadeEstadoValidation;
     private final BairroCidadeValidator bairroCidadeValidator;
     private final BairroMapper bairroMapper;
+    private static final String MSG_CIDADE_NAO_POSSUI_BAIRRO = "Esta cidade não possui o bairro informado.";
 
     public BairroService(BairroRepository bairroRepository,
                          BairroMapper bairroMapper,
@@ -67,10 +68,20 @@ public class BairroService {
         cidadeEstadoValidation.validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId());
 
         if (!bairroRepository.existsByIdAndCidadeId(dto.bairroId(), dto.cidadeId())) {
-            throw new ConflitoEntidadeInexistente("Esta cidade não possui o bairro informado.");
+            throw new ConflitoEntidadeInexistente(MSG_CIDADE_NAO_POSSUI_BAIRRO);
         }
 
         var bairroEncontrado = getBairroPorId(dto.bairroId());
+        return bairroMapper.toResponse(bairroEncontrado);
+    }
+
+    public BairroResponseDto buscarBairroPorNome(BairroRequestDto dto){
+        verificaCidadePertenceAoEstado(dto);
+
+        var bairroEncontrado = bairroRepository
+                .findByNomeIgnoreCaseAndCidadeId(dto.nome(), dto.cidadeId())
+                .orElseThrow(()-> new ConflitoEntidadeInexistente(MSG_CIDADE_NAO_POSSUI_BAIRRO));
+
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
