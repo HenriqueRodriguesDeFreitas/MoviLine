@@ -49,8 +49,7 @@ public class BairroService {
                                              BairroRequestDto dto) {
         verificaCidadePertenceAoEstado(dto);
 
-        var bairroEncontrado = bairroRepository.findById(bairroId).orElseThrow(
-                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: " + bairroId));
+        var bairroEncontrado = getBairroPorId(bairroId);
 
         if (!bairroEncontrado.getNome().equals(dto.nome())) {
             verificaCidadePossuiBairroComMesmoNome(dto);
@@ -71,8 +70,7 @@ public class BairroService {
             throw new ConflitoEntidadeInexistente("Esta cidade não possui o bairro informado.");
         }
 
-        var bairroEncontrado = bairroRepository.findById(dto.bairroId()).orElseThrow(
-                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com o id: " + dto.bairroId()));
+        var bairroEncontrado = getBairroPorId(dto.bairroId());
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
@@ -88,5 +86,10 @@ public class BairroService {
                 .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId())) {
             throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
         }
+    }
+
+    private Bairro getBairroPorId(UUID bairroId) {
+        return bairroRepository.findById(bairroId).orElseThrow(
+                () -> new ConflitoEntidadeInexistente("Bairro não encontrado com ID: " + bairroId));
     }
 }
