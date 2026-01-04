@@ -182,4 +182,19 @@ class BairroServiceTest {
         assertEquals("Esta cidade já possui bairro com mesmo nome.", exception.getMessage(), "Mensagens não coincidem");
         verify(bairroRepository, never()).save(any(Bairro.class));
     }
+
+    @Test
+    void buscarBairroPorNome_deveRetornarBairroResponseDto_quandoSucesso() {
+        when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
+        when(bairroRepository.findByNomeIgnoreCaseAndCidadeId(eq("Aeroporto"), any(UUID.class)))
+                .thenReturn(Optional.of(bairro));
+        when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
+            Bairro b = invocation.getArgument(0);
+            return new BairroResponseDto(b.getId(), b.getNome());
+        });
+
+        BairroResponseDto response = bairroService.buscarBairroPorNome(requestDto);
+        assertNotNull(response, "retorno não deveria ser nulo.");
+    }
 }
