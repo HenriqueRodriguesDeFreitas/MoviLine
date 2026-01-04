@@ -100,7 +100,10 @@ public class BairroController {
                             examples = @ExampleObject(name = "Cidade não possui bairro com o id informado.",
                                     value = ErroExamples.ERRO_404)))
     })
-    public ResponseEntity<BairroResponseDto> buscarPorId(@RequestBody @Valid BairroPorIdRequestDto dto) {
+    public ResponseEntity<BairroResponseDto> buscarPorId(@RequestParam UUID estadoId,
+                                                         @RequestParam UUID cidadeId,
+                                                         @RequestParam UUID bairroId) {
+        var dto = new BairroPorIdRequestDto(estadoId, cidadeId, bairroId);
         return ResponseEntity.ok(bairroService.buscarPorId(dto));
     }
 
@@ -123,6 +126,7 @@ public class BairroController {
             @RequestParam String nome,
             @RequestParam UUID cidadeId,
             @RequestParam UUID estadoId) {
-        return ResponseEntity.ok(bairroService.buscarBairroPorNome(nome, cidadeId, estadoId));
+        var dto = new BairroRequestDto(estadoId, cidadeId, nome);
+        return ResponseEntity.ok(bairroService.buscarBairroPorNome(dto));
     }
 }
