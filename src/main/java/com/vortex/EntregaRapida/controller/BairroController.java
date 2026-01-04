@@ -103,4 +103,26 @@ public class BairroController {
     public ResponseEntity<BairroResponseDto> buscarPorId(@RequestBody @Valid BairroPorIdRequestDto dto) {
         return ResponseEntity.ok(bairroService.buscarPorId(dto));
     }
+
+    @GetMapping("/buscarPorNome")
+    @Operation(summary = "Busca bairro por nome", description = "Retorna bairro de uma cidade de acordo com o nome pesquisado.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso.",
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = BairroResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = "Estado não possui cidade com o id informado",
+                                    value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = "Cidade não possui bairro com o mesmo nome",
+                                            value = ErroExamples.ERRO_404)
+                            }))
+    })
+    public ResponseEntity<BairroResponseDto> buscarPorNome(
+            @RequestParam String nome,
+            @RequestParam UUID cidadeId,
+            @RequestParam UUID estadoId) {
+        return ResponseEntity.ok(bairroService.buscarBairroPorNome(nome, cidadeId, estadoId));
+    }
 }
