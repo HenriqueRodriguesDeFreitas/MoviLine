@@ -18,6 +18,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Bairro", description = "Operações relacionadas ao cadastro e manutenções de bairros")
@@ -128,5 +129,16 @@ public class BairroController {
             @RequestParam UUID estadoId) {
         var dto = new BairroRequestDto(estadoId, cidadeId, nome);
         return ResponseEntity.ok(bairroService.buscarBairroPorNome(dto));
+    }
+
+    @GetMapping("/buscarBairrosDeCidade")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso.",
+            content = @Content(mediaType =  TYPE_JSON, schema =
+            @Schema(implementation = BairroResponseDto.class)))
+    })
+    public ResponseEntity<List<BairroResponseDto>> buscarBairrosDeCidade(
+            @RequestParam UUID estadoId, @RequestParam UUID cidadeId) {
+        return ResponseEntity.ok(bairroService.buscarBairrosDeCidade(estadoId, cidadeId));
     }
 }
