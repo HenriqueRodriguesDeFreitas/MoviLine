@@ -12,7 +12,7 @@ public class Rua {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(name = "rua", length = 250, nullable = false)
+    @Column(length = 250, nullable = false)
     private String nome;
 
     @Column(name = "cep", length = 8, nullable = false)
