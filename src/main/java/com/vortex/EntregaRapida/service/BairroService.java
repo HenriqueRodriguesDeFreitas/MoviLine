@@ -13,6 +13,7 @@ import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -85,6 +86,13 @@ public class BairroService {
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
+    public List<BairroResponseDto> buscarBairrosDeCidade(UUID estadoId, UUID cidadeId) {
+        verificaCidadePertenceAoEstado(estadoId, cidadeId);
+        List<Bairro> bairros = bairroRepository.findByCidadeId(cidadeId);
+        return bairros.stream()
+                .map(bairroMapper::toResponse).toList();
+    }
+
     private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
         if (bairroCidadeValidator
                 .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
@@ -95,6 +103,13 @@ public class BairroService {
     private void verificaCidadePertenceAoEstado(BairroRequestDto dto) {
         if (!cidadeEstadoValidation
                 .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId())) {
+            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        }
+    }
+
+    private void verificaCidadePertenceAoEstado(UUID estadoId, UUID cidadeId) {
+        if (!cidadeEstadoValidation
+                .validaCidadePertenceAoEstado(cidadeId, estadoId)) {
             throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
         }
     }
