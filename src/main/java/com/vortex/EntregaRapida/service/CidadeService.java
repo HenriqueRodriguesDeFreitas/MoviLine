@@ -10,7 +10,7 @@ import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -22,11 +22,11 @@ public class CidadeService {
 
     private final CidadeRepository cidadeRepository;
     private final CidadeMapper cidadeMapper;
-    private final CidadeEstadoValidation cidadeEstadoValidation;
+    private final CidadeEstadoValidator cidadeEstadoValidation;
 
     public CidadeService(CidadeRepository cidadeRepository,
                          CidadeMapper cidadeMapper,
-                         CidadeEstadoValidation cidadeEstadoValidation) {
+                         CidadeEstadoValidator cidadeEstadoValidation) {
         this.cidadeRepository = cidadeRepository;
         this.cidadeMapper = cidadeMapper;
         this.cidadeEstadoValidation = cidadeEstadoValidation;
