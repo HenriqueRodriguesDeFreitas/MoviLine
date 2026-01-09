@@ -11,7 +11,7 @@ import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.BairroRepository;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +37,7 @@ class BairroServiceTest {
     @Mock
     BairroCidadeValidator bairroCidadeValidator;
     @Mock
-    CidadeEstadoValidation cidadeEstadoValidation;
+    CidadeEstadoValidator cidadeEstadoValidation;
     @Mock
     BairroMapper bairroMapper;
     @InjectMocks
