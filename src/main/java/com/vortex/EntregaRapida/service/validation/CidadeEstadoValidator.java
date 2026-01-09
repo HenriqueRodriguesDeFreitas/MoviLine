@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Component
-public class CidadeEstadoValidation {
+public class CidadeEstadoValidator {
 
     private final CidadeRepository cidadeRepository;
     private final EstadoRepository estadoRepository;
 
-    public CidadeEstadoValidation(CidadeRepository cidadeRepository,
-                                  EstadoRepository estadoRepository) {
+    public CidadeEstadoValidator(CidadeRepository cidadeRepository,
+                                 EstadoRepository estadoRepository) {
         this.cidadeRepository = cidadeRepository;
         this.estadoRepository = estadoRepository;
     }
