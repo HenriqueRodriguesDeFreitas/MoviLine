@@ -9,7 +9,7 @@ import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,7 +33,7 @@ class CidadeServiceTest {
     @Mock
     private CidadeMapper cidadeMapper;
     @Mock
-    private CidadeEstadoValidation cidadeEstadoValidation;
+    private CidadeEstadoValidator cidadeEstadoValidation;
     @InjectMocks
     private CidadeService cidadeService;
 
