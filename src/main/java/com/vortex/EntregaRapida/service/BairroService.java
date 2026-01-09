@@ -9,7 +9,7 @@ import com.vortex.EntregaRapida.mapper.BairroMapper;
 import com.vortex.EntregaRapida.model.Bairro;
 import com.vortex.EntregaRapida.repository.BairroRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidation;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +20,7 @@ import java.util.UUID;
 public class BairroService {
 
     private final BairroRepository bairroRepository;
-    private final CidadeEstadoValidation cidadeEstadoValidation;
+    private final CidadeEstadoValidator cidadeEstadoValidation;
     private final BairroCidadeValidator bairroCidadeValidator;
     private final BairroMapper bairroMapper;
     private static final String MSG_CIDADE_NAO_POSSUI_BAIRRO = "Esta cidade não possui o bairro informado.";
@@ -28,7 +28,7 @@ public class BairroService {
     public BairroService(BairroRepository bairroRepository,
                          BairroMapper bairroMapper,
                          BairroCidadeValidator bairroCidadeValidator,
-                         CidadeEstadoValidation cidadeEstadoValidation) {
+                         CidadeEstadoValidator cidadeEstadoValidation) {
         this.bairroRepository = bairroRepository;
         this.bairroMapper = bairroMapper;
         this.cidadeEstadoValidation = cidadeEstadoValidation;
