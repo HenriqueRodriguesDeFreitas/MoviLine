@@ -8,9 +8,10 @@ import com.vortex.EntregaRapida.mapper.EstadoMapper;
 import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.EstadoRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -54,17 +55,14 @@ public class EstadoService {
         return estadoMapper.toResponse(estadoRepository.save(estado));
     }
 
-    public List<EstadoResponseDto> buscarEstadoPorNome(String nome) {
-        List<Estado> estados = estadoRepository.findByNomeIgnoreCaseContaining(nome);
-        return estados.stream()
-                .map(estadoMapper::toResponse).toList();
+    public Page<EstadoResponseDto> buscarEstadoPorNome(String nome, Pageable pageable) {
+        return estadoRepository.findByNomeIgnoreCaseContaining(nome, pageable)
+                .map(estadoMapper::toResponse);
     }
 
-    public List<EstadoResponseDto> buscarTodosEstados() {
-        List<Estado> estados = estadoRepository.findAll();
-
-        return estados.stream()
-                .map(estadoMapper::toResponse).toList();
+    public Page<EstadoResponseDto> buscarTodosEstados(Pageable pageable) {
+       return estadoRepository.findAll(pageable)
+                .map(estadoMapper::toResponse);
     }
 
     public EstadoResponseDto buscarEstadoPorId(UUID idEstado) {
