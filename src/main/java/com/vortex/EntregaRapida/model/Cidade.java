@@ -36,6 +36,12 @@ public class Cidade {
         this.estado = estado;
     }
 
+    public Cidade(UUID id, String nome, Estado estado) {
+        this.id = id;
+        this.nome = nome;
+        this.estado = estado;
+    }
+
     public UUID getId() {
         return id;
     }
