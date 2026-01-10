@@ -15,6 +15,11 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.websocket.server.PathParam;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -75,8 +80,10 @@ public class EstadoController {
                                     }]
                                     """)}))
     })
-    public ResponseEntity<List<EstadoResponseDto>> buscarTodosEstados() {
-        return ResponseEntity.ok(estadoService.buscarTodosEstados());
+    public ResponseEntity<Page<EstadoResponseDto>> buscarTodosEstados(@ParameterObject
+                                                                          @PageableDefault(size = 10,
+    sort = "nome", direction = Sort.Direction.ASC)Pageable pageable) {
+        return ResponseEntity.ok(estadoService.buscarTodosEstados(pageable));
     }
 
     @GetMapping("/{id}")
@@ -143,8 +150,9 @@ public class EstadoController {
                                     }]
                                     """)}))
     })
-    public ResponseEntity<List<EstadoResponseDto>> buscarPorNome(
-            @PathVariable("nome") @NotBlank String nome) {
-        return ResponseEntity.ok(estadoService.buscarEstadoPorNome(nome));
+    public ResponseEntity<Page<EstadoResponseDto>> buscarPorNome(
+            @PathVariable("nome") @NotBlank String nome,
+            @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(estadoService.buscarEstadoPorNome(nome, pageable));
     }
 }
