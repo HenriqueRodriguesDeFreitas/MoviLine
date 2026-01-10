@@ -15,11 +15,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Cidade", description = "Operações relacionadas ao cadastro e manutenções de cidades")
@@ -103,9 +105,10 @@ public class CidadeController {
                                     }]
                                     """)}))
     })
-    public ResponseEntity<List<CidadeResponseDto>> buscarCidadesDeUmEstado(
-            @PathVariable("idEstado") UUID idEstado) {
-        return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado));
+    public ResponseEntity<Page<CidadeResponseDto>> buscarCidadesDeUmEstado(
+            @PathVariable("idEstado") UUID idEstado,
+            @ParameterObject Pageable pageable) {
+        return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado, pageable));
     }
 
     @GetMapping("/nome")
@@ -130,11 +133,12 @@ public class CidadeController {
                                             """
                             )))
     })
-    public ResponseEntity<List<CidadeResponseDto>> buscarCidadesPorNome(
+    public ResponseEntity<Page<CidadeResponseDto>> buscarCidadesPorNome(
             @RequestParam UUID estadoid,
-            @RequestParam String cidadeNome) {
+            @RequestParam String cidadeNome,
+            @ParameterObject Pageable pageable) {
         var dto = new CidadePorNomeRequestDto(estadoid, cidadeNome);
-        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto));
+        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto, pageable));
     }
 
     @GetMapping("/{id}")

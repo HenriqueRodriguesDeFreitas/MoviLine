@@ -12,9 +12,10 @@ import com.vortex.EntregaRapida.model.Estado;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -75,20 +76,17 @@ public class CidadeService {
         return cidadeMapper.toResponse(cidadeRepository.save(cidadeEncontrada));
     }
 
-    public List<CidadeResponseDto> buscarTodasCidadeDeUmEstado(UUID idEstado) {
-        List<Cidade> cidades = cidadeRepository.findByEstadoId(idEstado);
-        return cidades.stream()
-                .map(cidadeMapper::toResponse).toList();
+    public Page<CidadeResponseDto> buscarTodasCidadeDeUmEstado(UUID idEstado, Pageable pageable) {
+        return cidadeRepository.findByEstadoId(idEstado, pageable)
+                .map(cidadeMapper::toResponse);
     }
 
-    public List<CidadeResponseDto> buscarCidadesPorNome(CidadePorNomeRequestDto dto) {
+    public Page<CidadeResponseDto> buscarCidadesPorNome(CidadePorNomeRequestDto dto, Pageable pageable) {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
 
-        List<Cidade> cidades = cidadeRepository
-                .findByEstadoIdAndNomeIgnoreCase(estado.getId(), dto.cidadeNome());
-
-        return cidades.stream()
-                .map(cidadeMapper::toResponse).toList();
+        return cidadeRepository
+                .findByEstadoIdAndNomeIgnoreCase(estado.getId(), dto.cidadeNome(), pageable)
+                .map(cidadeMapper::toResponse);
     }
 
     public CidadeResponseDto buscarCidadePorId(UUID cidadeId) {
@@ -100,10 +98,10 @@ public class CidadeService {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
         var cidade = retornaCidadeComIdPassado(dto.cidadeId());
 
-       if(!cidadeEstadoValidation
-                .validaCidadePertenceAoEstado(cidade.getId(), estado.getId())){
-           throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
-       }
+        if (!cidadeEstadoValidation
+                .validaCidadePertenceAoEstado(cidade.getId(), estado.getId())) {
+            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        }
         cidadeRepository.delete(cidade);
 
     }
