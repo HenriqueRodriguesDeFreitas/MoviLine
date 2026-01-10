@@ -36,12 +36,12 @@ public class BairroCidadeValidator {
 
     }
 
-    private Cidade getCidadePorId(UUID cidadeId) {
+    public Cidade getCidadePorId(UUID cidadeId) {
         return cidadeRepository.findById(cidadeId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Cidade não encontrada"));
     }
 
-    private Bairro getBairroPorId(UUID bairroId) {
+    public Bairro getBairroPorId(UUID bairroId) {
         return bairroRepository.findById(bairroId)
                 .orElseThrow(() -> new ConflitoEntidadeInexistente("Bairro não encontrado"));
     }
