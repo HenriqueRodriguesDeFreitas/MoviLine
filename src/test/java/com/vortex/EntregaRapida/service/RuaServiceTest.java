@@ -2,6 +2,7 @@ package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
 import com.vortex.EntregaRapida.dto.response.RuaResponseDto;
+import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.mapper.RuaMapper;
 import com.vortex.EntregaRapida.model.Bairro;
 import com.vortex.EntregaRapida.model.Cidade;
@@ -19,8 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -89,5 +89,23 @@ class RuaServiceTest {
         assertEquals(novaRua.getNome(), ruaResponseDto.nome(), "Nomes das ruas não concidem.");
 
         verify(ruaRepository, times(1)).save(any(Rua.class));
+    }
+
+    @Test
+    void cadastrarRua_deveRetornarConflitoDeEntidadeException_quandoCidadeJaPossuiBairroComMesmoNome() {
+        when(cidadeEstadoValidator.validaCidadePertenceAoEstado
+                (requestDto.cidadeId(), requestDto.estadoId())).thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro
+                (requestDto.cidadeId(), requestDto.bairroId())).thenReturn(true);
+        when(ruaRepository.existsByNomeIgnoreCaseAndBairroId
+                (requestDto.nome(), bairroId)).thenReturn(true);
+
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class,
+                () -> ruaService.cadastrarRua(requestDto));
+
+        assertEquals("Bairro já possui rua com o mesmo nome.", exception.getMessage());
+        verify(bairroCidadeValidator, never()).getBairroPorId(any(UUID.class));
+        verify(ruaRepository, never()).save(any(Rua.class));
+        verify(ruaMapper, never()).toResponse(any(Rua.class));
     }
 }
