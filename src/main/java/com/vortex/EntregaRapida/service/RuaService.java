@@ -63,10 +63,6 @@ public class RuaService {
     }
 
     private boolean verificaBairroPossuiRuaComMesmoNome(UUID bairroId, String nomeRua) {
-        if (ruaRepository.existsByNomeIgnoreCaseAndBairroId(nomeRua, bairroId)) {
-            return true;
-        } else {
-            return false;
-        }
+        return ruaRepository.existsByNomeIgnoreCaseAndBairroId(nomeRua, bairroId);
     }
 }
