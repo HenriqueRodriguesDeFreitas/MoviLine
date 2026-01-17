@@ -15,7 +15,7 @@ public interface CidadeRepository extends JpaRepository<Cidade, UUID> {
 
     List<Cidade> findByNomeContainingIgnoreCase(String nome);
 
-    Page<Cidade> findByEstadoIdAndNomeIgnoreCase(UUID estadoId, String nomeCidade, Pageable pageable);
+    Page<Cidade> findByEstadoIdAndNomeIgnoreCaseContaining(UUID estadoId, String nomeCidade, Pageable pageable);
 
     boolean existsByIdAndEstadoId(UUID cidadeId, UUID estadoId);
 
