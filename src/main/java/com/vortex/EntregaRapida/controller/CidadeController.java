@@ -6,6 +6,8 @@ import com.vortex.EntregaRapida.dto.request.CidadePorNomeRequestDto;
 import com.vortex.EntregaRapida.dto.request.CidadeRequestDto;
 import com.vortex.EntregaRapida.dto.response.CidadeResponseDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
+import com.vortex.EntregaRapida.dto.response.PageResponseDto;
+import com.vortex.EntregaRapida.mapper.PageResponseMapper;
 import com.vortex.EntregaRapida.service.CidadeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,7 +18,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,9 +32,11 @@ public class CidadeController {
 
     private final CidadeService cidadeService;
     private static final String TYPE_JSON = "application/json";
+    private final PageResponseMapper pageResponseMapper;
 
-    public CidadeController(CidadeService cidadeService) {
+    public CidadeController(CidadeService cidadeService, PageResponseMapper pageResponseMapper) {
         this.cidadeService = cidadeService;
+        this.pageResponseMapper = pageResponseMapper;
     }
 
     @PostMapping
@@ -105,10 +108,11 @@ public class CidadeController {
                                     }]
                                     """)}))
     })
-    public ResponseEntity<Page<CidadeResponseDto>> buscarCidadesDeUmEstado(
+    public ResponseEntity<PageResponseDto<CidadeResponseDto>> buscarCidadesDeUmEstado(
             @PathVariable("idEstado") UUID idEstado,
             @ParameterObject Pageable pageable) {
-        return ResponseEntity.ok(cidadeService.buscarTodasCidadeDeUmEstado(idEstado, pageable));
+        var page = cidadeService.buscarTodasCidadeDeUmEstado(idEstado, pageable);
+        return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 
     @GetMapping("/nome")
@@ -133,12 +137,13 @@ public class CidadeController {
                                             """
                             )))
     })
-    public ResponseEntity<Page<CidadeResponseDto>> buscarCidadesPorNome(
+    public ResponseEntity<PageResponseDto<CidadeResponseDto>> buscarCidadesPorNome(
             @RequestParam UUID estadoid,
             @RequestParam String cidadeNome,
             @ParameterObject Pageable pageable) {
         var dto = new CidadePorNomeRequestDto(estadoid, cidadeNome);
-        return ResponseEntity.ok(cidadeService.buscarCidadesPorNome(dto, pageable));
+        var page = cidadeService.buscarCidadesPorNome(dto, pageable);
+        return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 
     @GetMapping("/{id}")
