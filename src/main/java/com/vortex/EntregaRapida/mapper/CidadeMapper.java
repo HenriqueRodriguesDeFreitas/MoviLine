@@ -10,5 +10,6 @@ public interface CidadeMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "nome", source = "nome")
+    @Mapping(target = "estado", source = "estado.nome")
     CidadeResponseDto toResponse(Cidade cidade);
 }
