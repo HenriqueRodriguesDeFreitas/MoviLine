@@ -2,6 +2,8 @@ package com.vortex.EntregaRapida.repository;
 
 
 import com.vortex.EntregaRapida.model.Bairro;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -11,7 +13,9 @@ import java.util.UUID;
 public interface BairroRepository extends JpaRepository<Bairro, UUID> {
     List<Bairro> findByNomeContainingIgnoreCase(String nome);
 
-    List<Bairro> findByCidadeId(UUID cidadeId);
+    Page<Bairro> findByCidadeId(UUID cidadeId, Pageable pageable);
+
+    Page<Bairro> findByNomeIgnoreCaseContainingAndCidadeId(String nome, UUID cidadeId, Pageable pageable);
 
     boolean existsByNomeIgnoreCaseAndCidadeId(String nome, UUID cidadeId);
 
