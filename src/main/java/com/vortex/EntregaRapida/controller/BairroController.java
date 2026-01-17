@@ -5,6 +5,8 @@ import com.vortex.EntregaRapida.dto.request.BairroPorIdRequestDto;
 import com.vortex.EntregaRapida.dto.request.BairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.BairroResponseDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
+import com.vortex.EntregaRapida.dto.response.PageResponseDto;
+import com.vortex.EntregaRapida.mapper.PageResponseMapper;
 import com.vortex.EntregaRapida.service.BairroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -14,11 +16,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Bairro", description = "Operações relacionadas ao cadastro e manutenções de bairros")
@@ -27,12 +30,14 @@ import java.util.UUID;
 public class BairroController {
 
     private final BairroService bairroService;
+    private final PageResponseMapper pageResponseMapper;
     private static final String TYPE_JSON = "application/json";
     private static final String DESC_CODE_404 = "Erro de recurso não encontrado.";
     private static final String DESC_CODE_409 = "Erro de conflito entre entidades.";
 
-    public BairroController(BairroService bairroService) {
+    public BairroController(BairroService bairroService, PageResponseMapper pageResponseMapper) {
         this.bairroService = bairroService;
+        this.pageResponseMapper = pageResponseMapper;
     }
 
     @PostMapping
@@ -123,22 +128,27 @@ public class BairroController {
                                             value = ErroExamples.ERRO_404)
                             }))
     })
-    public ResponseEntity<BairroResponseDto> buscarPorNome(
+    public ResponseEntity<PageResponseDto<BairroResponseDto>> buscarPorNome(
             @RequestParam String nome,
             @RequestParam UUID cidadeId,
-            @RequestParam UUID estadoId) {
+            @RequestParam UUID estadoId,
+            @ParameterObject Pageable pageable) {
         var dto = new BairroRequestDto(estadoId, cidadeId, nome);
-        return ResponseEntity.ok(bairroService.buscarBairroPorNome(dto));
+        var page = bairroService.buscarBairroPorNome(dto, pageable);
+        return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 
     @GetMapping("/buscarBairrosDeCidade")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso.",
-            content = @Content(mediaType =  TYPE_JSON, schema =
-            @Schema(implementation = BairroResponseDto.class)))
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = BairroResponseDto.class)))
     })
-    public ResponseEntity<List<BairroResponseDto>> buscarBairrosDeCidade(
-            @RequestParam UUID estadoId, @RequestParam UUID cidadeId) {
-        return ResponseEntity.ok(bairroService.buscarBairrosDeCidade(estadoId, cidadeId));
+    public ResponseEntity<PageResponseDto<BairroResponseDto>> buscarBairrosDeCidade(
+            @RequestParam UUID estadoId,
+            @RequestParam UUID cidadeId,
+            @ParameterObject Pageable pageable) {
+        var page = bairroService.buscarBairrosDeCidade(estadoId, cidadeId, pageable);
+        return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 }
