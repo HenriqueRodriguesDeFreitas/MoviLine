@@ -85,7 +85,7 @@ public class CidadeService {
         var estado = retornaEstadoComIdPassado(dto.estadoId());
 
         return cidadeRepository
-                .findByEstadoIdAndNomeIgnoreCase(estado.getId(), dto.cidadeNome(), pageable)
+                .findByEstadoIdAndNomeIgnoreCaseContaining(estado.getId(), dto.cidadeNome(), pageable)
                 .map(cidadeMapper::toResponse);
     }
 
