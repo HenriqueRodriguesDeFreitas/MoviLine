@@ -6,6 +6,6 @@ import java.util.UUID;
 
 public record CidadeResponseDto(
         @Schema(name = "Id da cidade", examples = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
-        @Schema(name = "Estado a qual a cidade pertence", example = "Pará") String estado,
-        @Schema(name = "Nome da cidade", example = "Breves") String nome) {
+        @Schema(name = "Estado", example = "Pará") String estado,
+        @Schema(name = "Nome", example = "Breves") String nome) {
 }
