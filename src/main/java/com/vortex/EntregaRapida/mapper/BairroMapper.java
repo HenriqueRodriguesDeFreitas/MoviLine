@@ -10,5 +10,7 @@ public interface BairroMapper {
 
     @Mapping(target = "id", source = "id")
     @Mapping(target = "nome", source = "nome")
+    @Mapping(target = "estado", source = "cidade.estado.nome")
+    @Mapping(target = "cidade", source = "cidade.nome")
     BairroResponseDto toResponse(Bairro bairro);
 }
