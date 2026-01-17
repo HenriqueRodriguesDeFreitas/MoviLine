@@ -11,9 +11,10 @@ import com.vortex.EntregaRapida.repository.BairroRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -76,21 +77,18 @@ public class BairroService {
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
-    public BairroResponseDto buscarBairroPorNome(BairroRequestDto dto){
+    public Page<BairroResponseDto> buscarBairroPorNome(BairroRequestDto dto, Pageable pageable) {
         verificaCidadePertenceAoEstado(dto);
 
-        var bairroEncontrado = bairroRepository
-                .findByNomeIgnoreCaseAndCidadeId(dto.nome(), dto.cidadeId())
-                .orElseThrow(()-> new ConflitoEntidadeInexistente(MSG_CIDADE_NAO_POSSUI_BAIRRO));
+        return bairroRepository
+                .findByNomeIgnoreCaseContainingAndCidadeId(dto.nome(), dto.cidadeId(), pageable)
+                .map(bairroMapper::toResponse);
 
-        return bairroMapper.toResponse(bairroEncontrado);
     }
 
-    public List<BairroResponseDto> buscarBairrosDeCidade(UUID estadoId, UUID cidadeId) {
+    public Page<BairroResponseDto> buscarBairrosDeCidade(UUID estadoId, UUID cidadeId, Pageable pageable) {
         verificaCidadePertenceAoEstado(estadoId, cidadeId);
-        List<Bairro> bairros = bairroRepository.findByCidadeId(cidadeId);
-        return bairros.stream()
-                .map(bairroMapper::toResponse).toList();
+        return bairroRepository.findByCidadeId(cidadeId, pageable).map(bairroMapper::toResponse);
     }
 
     private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
