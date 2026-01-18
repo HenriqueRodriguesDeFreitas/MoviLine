@@ -8,6 +8,7 @@ import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
+import com.vortex.EntregaRapida.repository.BairroRepository;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +31,8 @@ class CidadeServiceTest {
 
     @Mock
     private CidadeRepository cidadeRepository;
+    @Mock
+    private BairroRepository bairroRepository;
     @Mock
     private CidadeMapper cidadeMapper;
     @Mock
@@ -58,7 +61,8 @@ class CidadeServiceTest {
         when(cidadeRepository.save(any(Cidade.class))).thenReturn(cidade);
         when(cidadeMapper.toResponse(any())).thenAnswer(invocation -> {
             Cidade c = invocation.getArgument(0);
-            return new CidadeResponseDto(c.getId(), c.getNome());
+            String nomeEstado = c.getEstado().getNome();
+            return new CidadeResponseDto(c.getId(), nomeEstado, c.getNome());
         });
 
         CidadeResponseDto responseDto = cidadeService.cadastrarCidade(requestDto);
@@ -116,7 +120,8 @@ class CidadeServiceTest {
 
         when(cidadeMapper.toResponse(any(Cidade.class))).thenAnswer(invocation -> {
             Cidade cidade = invocation.getArgument(0);
-            return new CidadeResponseDto(cidade.getId(), cidade.getNome());
+            String nomeEstado = cidade.getEstado().getNome();
+            return new CidadeResponseDto(cidade.getId(), nomeEstado, cidade.getNome());
         });
         when(cidadeRepository.save(any(Cidade.class))).thenReturn(cidade);
 
@@ -205,6 +210,7 @@ class CidadeServiceTest {
                 .thenReturn(cidade);
         when(cidadeEstadoValidation.validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId()))
                 .thenReturn(true);
+        when(bairroRepository.existsByCidadeId(idPadrao)).thenReturn(false);
 
         cidadeService.deletarCidade(dto);
         verify(cidadeRepository, times(1)).delete(cidade);

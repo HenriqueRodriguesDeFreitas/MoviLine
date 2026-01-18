@@ -18,7 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -54,6 +59,7 @@ class BairroServiceTest {
     void setUp() {
         estado = new Estado(idPardrao, "Pará");
         cidade = new Cidade(idPardrao, "Breves");
+        cidade.setEstado(estado);
         bairro = new Bairro(idPardrao, "Aeroporto", cidade);
         requestDto = new BairroRequestDto(estado.getId(),
                 cidade.getId(),
@@ -70,7 +76,9 @@ class BairroServiceTest {
         when(bairroRepository.save(any(Bairro.class))).thenReturn(bairro);
         when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
             Bairro b = invocation.getArgument(0);
-            return new BairroResponseDto(b.getId(), b.getNome());
+            String nomeEstado = b.getCidade().getEstado().getNome();
+            String nomeCidade = b.getCidade().getNome();
+            return new BairroResponseDto(b.getId(), nomeEstado, nomeCidade, b.getNome());
         });
 
         BairroResponseDto responseDto = bairroService.cadastrarBairro(requestDto);
@@ -131,7 +139,9 @@ class BairroServiceTest {
         when(bairroRepository.save(any(Bairro.class))).thenReturn(bairro);
         when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
             Bairro b = invocation.getArgument(0);
-            return new BairroResponseDto(b.getId(), b.getNome());
+            String nomeEstado = b.getCidade().getEstado().getNome();
+            String nomeCidade = b.getCidade().getNome();
+            return new BairroResponseDto(b.getId(), nomeEstado, nomeCidade, b.getNome());
         });
 
         BairroResponseDto response = bairroService.atualizarBairro(idPardrao, requestDto);
@@ -185,16 +195,21 @@ class BairroServiceTest {
 
     @Test
     void buscarBairroPorNome_deveRetornarBairroResponseDto_quandoSucesso() {
+
+        Pageable pageable = PageRequest.of(0, 10);
         when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
                 .thenReturn(true);
-        when(bairroRepository.findByNomeIgnoreCaseAndCidadeId(eq("Aeroporto"), any(UUID.class)))
-                .thenReturn(Optional.of(bairro));
+        when(bairroRepository.findByNomeIgnoreCaseContainingAndCidadeId(
+                eq("Aeroporto"), any(UUID.class), any(Pageable.class)))
+                .thenReturn(new PageImpl<>(List.of(bairro)));
         when(bairroMapper.toResponse(any(Bairro.class))).thenAnswer(invocation -> {
             Bairro b = invocation.getArgument(0);
-            return new BairroResponseDto(b.getId(), b.getNome());
+            String nomeEstado = b.getCidade().getEstado().getNome();
+            String nomeCidade = b.getCidade().getNome();
+            return new BairroResponseDto(b.getId(), nomeEstado, nomeCidade, b.getNome());
         });
 
-        BairroResponseDto response = bairroService.buscarBairroPorNome(requestDto);
+        Page<BairroResponseDto> response = bairroService.buscarBairroPorNome(requestDto, pageable);
         assertNotNull(response, "retorno não deveria ser nulo.");
     }
 }
