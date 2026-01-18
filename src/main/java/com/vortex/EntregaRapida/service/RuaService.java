@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
-import java.util.UnknownFormatFlagsException;
 
 @Service
 public class RuaService {
@@ -38,7 +37,7 @@ public class RuaService {
         verificaCidadePossuiBairro(request);
 
         boolean validacaoCidadePossuiBairro
-                = verificaBairroPossuiRuaComMesmoNome(request.bairroId(), request.nome());
+                = bairroJaPossuiRuaComNome(request.nome(), request.bairroId());
 
         if (validacaoCidadePossuiBairro) {
             throw new ConflitoDeEntidadeException("Bairro já possui rua com o mesmo nome.");
@@ -50,9 +49,37 @@ public class RuaService {
         return ruaMapper.toResponse(ruaRepository.save(novaRua));
     }
 
+    @Transactional
+    public RuaResponseDto atualizarRua(UUID ruaId, RuaRequestDto requestDto) {
+        verificaCidadePertenceAoEstado(requestDto);
+        verificaCidadePossuiBairro(requestDto);
+
+        var ruaEncontrada = retornaRuaComIdPassado(ruaId);
+
+        if (!ruaEncontrada.getBairro().getId().equals(requestDto.bairroId())) {
+            throw new ConflitoEntidadeInexistente(
+                    "Rua não pertence ao bairro informado."
+            );
+        }
+
+        var bairroEncontrado = bairroCidadeValidator.getBairroPorId(requestDto.bairroId());
+
+        boolean nomeAlterado = !ruaEncontrada.getNome()
+                .equalsIgnoreCase(requestDto.nome());
+
+        if (nomeAlterado && bairroJaPossuiRuaComNome(requestDto.nome(), requestDto.bairroId())) {
+            throw new ConflitoDeEntidadeException("Bairro já possui uma rua com o mesmo nome.");
+        }
+        ruaEncontrada.setNome(requestDto.nome());
+        ruaEncontrada.setCep(requestDto.cep());
+        ruaEncontrada.setBairro(bairroEncontrado);
+
+        return ruaMapper.toResponse(ruaRepository.save(ruaEncontrada));
+    }
+
     private void verificaCidadePertenceAoEstado(RuaRequestDto request) {
         if (!cidadeEstadoValidator.validaCidadePertenceAoEstado(request.cidadeId(), request.estadoId())) {
-            throw new UnknownFormatFlagsException("Estado não possui a cidade informada.");
+            throw new ConflitoDeEntidadeException("Estado não possui a cidade informada.");
         }
     }
 
@@ -62,7 +89,12 @@ public class RuaService {
         }
     }
 
-    private boolean verificaBairroPossuiRuaComMesmoNome(UUID bairroId, String nomeRua) {
+    private boolean bairroJaPossuiRuaComNome(String nomeRua, UUID bairroId) {
         return ruaRepository.existsByNomeIgnoreCaseAndBairroId(nomeRua, bairroId);
+    }
+
+    private Rua retornaRuaComIdPassado(UUID ruaId) {
+        return ruaRepository.findById(ruaId)
+                .orElseThrow(() -> new ConflitoEntidadeInexistente("Não existe rua com Id passado."));
     }
 }
