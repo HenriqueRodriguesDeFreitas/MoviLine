@@ -9,6 +9,7 @@ import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.CidadeMapper;
 import com.vortex.EntregaRapida.model.Cidade;
 import com.vortex.EntregaRapida.model.Estado;
+import com.vortex.EntregaRapida.repository.BairroRepository;
 import com.vortex.EntregaRapida.repository.CidadeRepository;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
@@ -24,13 +25,16 @@ public class CidadeService {
     private final CidadeRepository cidadeRepository;
     private final CidadeMapper cidadeMapper;
     private final CidadeEstadoValidator cidadeEstadoValidation;
+    private final BairroRepository bairroRepository;
 
     public CidadeService(CidadeRepository cidadeRepository,
                          CidadeMapper cidadeMapper,
-                         CidadeEstadoValidator cidadeEstadoValidation) {
+                         CidadeEstadoValidator cidadeEstadoValidation,
+                         BairroRepository bairroRepository) {
         this.cidadeRepository = cidadeRepository;
         this.cidadeMapper = cidadeMapper;
         this.cidadeEstadoValidation = cidadeEstadoValidation;
+        this.bairroRepository = bairroRepository;
     }
 
     @Transactional
@@ -101,6 +105,9 @@ public class CidadeService {
         if (!cidadeEstadoValidation
                 .validaCidadePertenceAoEstado(cidade.getId(), estado.getId())) {
             throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        }
+        if (bairroRepository.existsByCidadeId(cidade.getId())) {
+            throw new ConflitoDeEntidadeException("Não é possível excluir a cidade, existem bairros vinculado a ela.");
         }
         cidadeRepository.delete(cidade);
 
