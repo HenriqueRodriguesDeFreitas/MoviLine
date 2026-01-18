@@ -11,5 +11,8 @@ public interface RuaMapper {
     @Mapping(source = "bairro.nome", target = "bairro")
     @Mapping(source = "bairro.cidade.nome", target = "cidade")
     @Mapping(source = "bairro.cidade.estado.nome", target = "estado")
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "nome", target = "nome")
+    @Mapping(source = "cep", target = "cep")
     RuaResponseDto toResponse(Rua rua);
 }
