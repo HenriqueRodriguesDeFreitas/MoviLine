@@ -13,5 +13,7 @@ public record RuaResponseDto(@Schema(description = "Nome do estado",
                              @Schema(description = "Id da rua",
                                      example = "3fa85f64-5717-4562-b3fc-2c963f66afa6") UUID id,
                              @Schema(description = "Nome da rua",
-                                     example = "Presidente Vargas") String nome) {
+                                     example = "Presidente Vargas") String nome,
+                             @Schema(description = "CEP da rua",
+                                     example = "88132622") String cep) {
 }
