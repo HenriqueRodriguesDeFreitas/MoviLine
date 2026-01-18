@@ -76,7 +76,7 @@ class RuaServiceTest {
             String nomeEstado = rua.getBairro().getCidade().getEstado().getNome();
             String nomeCidade = rua.getBairro().getCidade().getNome();
             String nomeBairro = rua.getBairro().getNome();
-            return new RuaResponseDto(nomeEstado, nomeCidade, nomeBairro, rua.getId(), rua.getNome());
+            return new RuaResponseDto(nomeEstado, nomeCidade, nomeBairro, rua.getId(), rua.getNome(), rua.getCep());
         });
 
         ruaResponseDto = ruaService.cadastrarRua(requestDto);
