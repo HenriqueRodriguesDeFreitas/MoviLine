@@ -58,7 +58,7 @@ public class RuaService {
 
         if (!ruaRepository.existsByIdAndBairroId(ruaEncontrada.getId(), requestDto.bairroId())) {
             throw new ConflitoEntidadeInexistente(
-                    "Rua não pertence ao bairro informado."
+                    "Bairro não possui a rua informada."
             );
         }
 
