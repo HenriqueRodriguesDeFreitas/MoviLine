@@ -18,6 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -107,5 +108,35 @@ class RuaServiceTest {
         verify(bairroCidadeValidator, never()).getBairroPorId(any(UUID.class));
         verify(ruaRepository, never()).save(any(Rua.class));
         verify(ruaMapper, never()).toResponse(any(Rua.class));
+    }
+
+    @Test
+    void atualizarRua_deveRetornarRuaResponseDto_casoSucesso() {
+        // nome diferente do original
+        requestDto = new RuaRequestDto(
+                estadoId,
+                cidadeId,
+                bairroId,
+                "Rua Nova",
+                "12345-000"
+        );
+        when(cidadeEstadoValidator.validaCidadePertenceAoEstado(cidadeId, estadoId))
+                .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(cidadeId, bairroId))
+                .thenReturn(true);
+        when(ruaRepository.findById(ruaId)).thenReturn(Optional.of(novaRua));
+        when(ruaRepository.existsByIdAndBairroId(ruaId, bairroId)).thenReturn(true);
+        when(bairroCidadeValidator.getBairroPorId(bairroId)).thenReturn(bairro);
+        when(ruaRepository.existsByNomeIgnoreCaseAndBairroId(any(String.class), any(UUID.class)))
+                .thenReturn(false);
+        when(ruaRepository.save(any(Rua.class))).thenReturn(novaRua);
+        when(ruaMapper.toResponse(any(Rua.class))).thenAnswer(invocation -> {
+           Rua rua = invocation.getArgument(0);
+           return new RuaResponseDto(estado.getNome(), cidade.getNome(),
+                   bairro.getNome(), rua.getId(), rua.getNome(), rua.getCep());
+        });
+
+        RuaResponseDto response = ruaService.atualizarRua(ruaId, requestDto);
+        assertNotNull(response, "Retorno não deveria ser nulo.");
     }
 }
