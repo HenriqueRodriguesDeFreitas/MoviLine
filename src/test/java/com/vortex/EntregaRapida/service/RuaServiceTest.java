@@ -3,6 +3,7 @@ package com.vortex.EntregaRapida.service;
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
 import com.vortex.EntregaRapida.dto.response.RuaResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
+import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.RuaMapper;
 import com.vortex.EntregaRapida.model.Bairro;
 import com.vortex.EntregaRapida.model.Cidade;
@@ -131,12 +132,27 @@ class RuaServiceTest {
                 .thenReturn(false);
         when(ruaRepository.save(any(Rua.class))).thenReturn(novaRua);
         when(ruaMapper.toResponse(any(Rua.class))).thenAnswer(invocation -> {
-           Rua rua = invocation.getArgument(0);
-           return new RuaResponseDto(estado.getNome(), cidade.getNome(),
-                   bairro.getNome(), rua.getId(), rua.getNome(), rua.getCep());
+            Rua rua = invocation.getArgument(0);
+            return new RuaResponseDto(estado.getNome(), cidade.getNome(),
+                    bairro.getNome(), rua.getId(), rua.getNome(), rua.getCep());
         });
 
         RuaResponseDto response = ruaService.atualizarRua(ruaId, requestDto);
         assertNotNull(response, "Retorno não deveria ser nulo.");
+    }
+
+    @Test
+    void atualizarRua_deveRetornarConflitoEntidadeInexistente_casoBairroNaoPossuiRua() {
+        when(cidadeEstadoValidator.validaCidadePertenceAoEstado(cidadeId, estadoId))
+                .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(cidadeId, bairroId))
+                .thenReturn(true);
+        when(ruaRepository.findById(ruaId)).thenReturn(Optional.of(novaRua));
+        when(ruaRepository.existsByIdAndBairroId(any(UUID.class), any(UUID.class))).thenReturn(false);
+
+        ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class, () ->
+                ruaService.atualizarRua(ruaId, requestDto));
+        assertEquals("Bairro não possui a rua informada.", exception.getMessage());
+        verify(ruaRepository, never()).save(any(Rua.class));
     }
 }
