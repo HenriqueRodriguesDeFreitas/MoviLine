@@ -155,4 +155,32 @@ class RuaServiceTest {
         assertEquals("Bairro não possui a rua informada.", exception.getMessage());
         verify(ruaRepository, never()).save(any(Rua.class));
     }
+
+    @Test
+    void atualizarRua_deveRetornarConflitoEntidadeInexistente_casoBairroPossuaRuaComMesmoNome() {
+        // nome diferente do original
+        requestDto = new RuaRequestDto(
+                estadoId,
+                cidadeId,
+                bairroId,
+                "Rua Nova",
+                "12345-000"
+        );
+        when(cidadeEstadoValidator.validaCidadePertenceAoEstado(cidadeId, estadoId))
+                .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(cidadeId, bairroId))
+                .thenReturn(true);
+        when(ruaRepository.findById(ruaId)).thenReturn(Optional.of(novaRua));
+        when(ruaRepository.existsByIdAndBairroId(ruaId, bairroId)).thenReturn(true);
+        when(bairroCidadeValidator.getBairroPorId(bairroId)).thenReturn(bairro);
+        when(ruaRepository.existsByNomeIgnoreCaseAndBairroId(any(String.class), any(UUID.class)))
+                .thenReturn(true);
+
+        ConflitoDeEntidadeException exception = assertThrows(ConflitoDeEntidadeException.class, () -> {
+            ruaService.atualizarRua(ruaId, requestDto);
+        });
+
+        assertEquals("Bairro já possui uma rua com o mesmo nome.", exception.getMessage(),
+                "Mensagens de erro não estão iguais");
+    }
 }
