@@ -152,7 +152,7 @@ class RuaServiceTest {
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class, () ->
                 ruaService.atualizarRua(ruaId, requestDto));
-        assertEquals("Bairro não possui a rua informada.", exception.getMessage());
+        assertEquals( "Bairro não possui rua com id informado.", exception.getMessage());
         verify(ruaRepository, never()).save(any(Rua.class));
     }
 
