@@ -75,7 +75,14 @@ public class RuaController {
                             examples = {@ExampleObject(name = "Estado não possui a cidade informada.",
                                     value = ErroExamples.ERRO_404),
                                     @ExampleObject(name = "Cidade não possui o bairro informado.",
-                                            value = ErroExamples.ERRO_404)}))
+                                            value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = "Bairro não possui rua com id informado.",
+                                            value = ErroExamples.ERRO_404)})),
+            @ApiResponse(responseCode = "409", description = DESC_CODE_409,
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = "Bairro já possui rua com mesmo nome.",
+                                    value = ErroExamples.ERRO_409)}))
     })
     public ResponseEntity<RuaResponseDto> atualizarRua(@PathVariable("ruaId") UUID ruaId,
                                                        @RequestBody RuaRequestDto requestDto) {
