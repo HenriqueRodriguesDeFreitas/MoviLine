@@ -116,7 +116,7 @@ public class RuaController {
         return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 
-    @GetMapping("/buscaPorNome/{nome}")
+    @GetMapping("/buscaPorNome")
     @Operation(summary = "Busca ruas por nome", description = "Busca ruas de um bairro por nome")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso!",
@@ -130,9 +130,11 @@ public class RuaController {
                                     @ExampleObject(name = MSG_CidadeNaoPossuiBairroComIdInformado)}))
     })
     public ResponseEntity<PageResponseDto<RuaResponseDto>> buscaRuasPorNome(
-            @RequestBody @Valid RuasDeUmBairroRequestDto requestDto,
-            @PathVariable("nome") String nome, @ParameterObject Pageable pageable) {
-        var page = ruaService.buscarRuasPorNome(requestDto, nome, pageable);
+            @RequestParam UUID estadoId,
+            @RequestParam UUID cidadeId,
+            @RequestParam UUID bairroId,
+            @RequestParam String nome, @ParameterObject Pageable pageable) {
+        var page = ruaService.buscarRuasPorNome(estadoId, cidadeId, bairroId, nome, pageable);
         return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 }
