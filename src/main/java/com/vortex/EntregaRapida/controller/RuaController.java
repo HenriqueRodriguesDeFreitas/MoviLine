@@ -2,7 +2,9 @@ package com.vortex.EntregaRapida.controller;
 
 import com.vortex.EntregaRapida.docs.ErroExamples;
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
+import com.vortex.EntregaRapida.dto.request.RuasDeUmBairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
+import com.vortex.EntregaRapida.dto.response.PageResponseDto;
 import com.vortex.EntregaRapida.dto.response.RuaResponseDto;
 import com.vortex.EntregaRapida.mapper.PageResponseMapper;
 import com.vortex.EntregaRapida.service.RuaService;
@@ -14,6 +16,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -87,5 +91,26 @@ public class RuaController {
     public ResponseEntity<RuaResponseDto> atualizarRua(@PathVariable("ruaId") UUID ruaId,
                                                        @RequestBody RuaRequestDto requestDto) {
         return ResponseEntity.ok(ruaService.atualizarRua(ruaId, requestDto));
+    }
+
+    @GetMapping
+    @Operation(summary = "Buscar ruas", description = "Busca ruas de um bairro.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = RuaResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = "Estado não possui cidade com o id informado.",
+                                    value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = "Cidade não possui bairro com o id informado",
+                                            value = ErroExamples.ERRO_404)}))
+
+    })
+    public ResponseEntity<PageResponseDto<RuaResponseDto>> buscaRuasDeBairro(RuasDeUmBairroRequestDto requestDto,
+                                                                             @ParameterObject Pageable pageable) {
+        var page = ruaService.buscarRuasDeUmBairro(requestDto, pageable);
+        return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
     }
 }
