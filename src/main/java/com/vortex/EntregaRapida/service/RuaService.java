@@ -9,7 +9,7 @@ import com.vortex.EntregaRapida.mapper.RuaMapper;
 import com.vortex.EntregaRapida.model.Rua;
 import com.vortex.EntregaRapida.repository.RuaRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
