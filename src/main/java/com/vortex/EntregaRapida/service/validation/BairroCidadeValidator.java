@@ -28,7 +28,7 @@ public class BairroCidadeValidator {
         var cidade = getCidadePorId(cidadeId);
         var bairro = getBairroPorId(bairroId);
 
-        if (!bairroRepository.existsByIdAndCidadeId(cidade.getId(), bairro.getId())) {
+        if (!bairroRepository.existsByIdAndCidadeId(bairro.getId(), cidade.getId())) {
             return false;
         } else {
             return true;
