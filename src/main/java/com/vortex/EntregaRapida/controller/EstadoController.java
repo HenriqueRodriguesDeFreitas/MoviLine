@@ -24,7 +24,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
-import java.util.List;
 import java.util.UUID;
 
 @Tag(name = "Estado", description = "Operações relacionadas ao cadastro e manutenções de estados")
@@ -81,8 +80,8 @@ public class EstadoController {
                                     """)}))
     })
     public ResponseEntity<Page<EstadoResponseDto>> buscarTodosEstados(@ParameterObject
-                                                                          @PageableDefault(size = 10,
-    sort = "nome", direction = Sort.Direction.ASC)Pageable pageable) {
+                                                                      @PageableDefault(size = 10,
+                                                                              sort = "nome", direction = Sort.Direction.ASC) Pageable pageable) {
         return ResponseEntity.ok(estadoService.buscarTodosEstados(pageable));
     }
 
