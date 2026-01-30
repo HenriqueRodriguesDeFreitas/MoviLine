@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@Tag(name = "Rua", description = "Operações relacionadas ao cadastro e manutenções de cidades.")
+@Tag(name = "Rua", description = "Operações relacionadas ao cadastro e manutenções de ruas.")
 @RequestMapping("rua")
 public class RuaController {
 
@@ -40,30 +40,43 @@ public class RuaController {
     @Operation(summary = "Cadastrar rua", description = "Método usado para cadastrar uma nova rua em um bairro.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Rua cadastrada com sucesso.",
-            content = @Content(mediaType = TYPE_JSON,
-                    schema = @Schema(implementation = RuaResponseDto.class))),
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = RuaResponseDto.class))),
             @ApiResponse(responseCode = "404", description = DESC_CODE_404,
-            content = @Content(mediaType = TYPE_JSON,
-            schema = @Schema(implementation = ErroResponseDto.class),
-            examples = {
-                    @ExampleObject(name = "Estado não possui a cidade com o Id informado.",
-                    value = ErroExamples.ERRO_404),
-                    @ExampleObject(name = "Cidade não possui um bairro com o Id informado.",
-                    value = ErroExamples.ERRO_404)
-            })),
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {
+                                    @ExampleObject(name = "Estado não possui a cidade com o Id informado.",
+                                            value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = "Cidade não possui um bairro com o Id informado.",
+                                            value = ErroExamples.ERRO_404)
+                            })),
             @ApiResponse(responseCode = "409", description = DESC_CODE_409,
-            content =  @Content(mediaType = TYPE_JSON,
-            schema = @Schema(implementation = ErroResponseDto.class),
-            examples = {
-                    @ExampleObject(name = "Bairro já possui rua com o mesmo nome.",
-                    value = ErroExamples.ERRO_409)
-            }))
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {
+                                    @ExampleObject(name = "Bairro já possui rua com o mesmo nome.",
+                                            value = ErroExamples.ERRO_409)
+                            }))
     })
     public ResponseEntity<RuaResponseDto> cadastrarRua(@RequestBody @Valid RuaRequestDto request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ruaService.cadastrarRua(request));
     }
 
     @PutMapping("/{ruaId}")
+    @Operation(summary = "Atualizar rua", description = "Método utilizado para atualizar dados de uma rua")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Rua atualizada com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = RuaResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = "Estado não possui a cidade informada.",
+                                    value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = "Cidade não possui o bairro informado.",
+                                            value = ErroExamples.ERRO_404)}))
+    })
     public ResponseEntity<RuaResponseDto> atualizarRua(@PathVariable("ruaId") UUID ruaId,
                                                        @RequestBody RuaRequestDto requestDto) {
         return ResponseEntity.ok(ruaService.atualizarRua(ruaId, requestDto));
