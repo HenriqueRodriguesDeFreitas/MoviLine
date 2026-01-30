@@ -33,6 +33,8 @@ public class RuaController {
     private static final String TYPE_JSON = "application/json";
     private static final String DESC_CODE_404 = "Erro de recurso não encontrado.";
     private static final String DESC_CODE_409 = "Erro de conflito entre entidades.";
+    private static final String MSG_EstadoNaoPossuiCidadeComIdInformado = "Estado não possui cidade com id informado.";
+    private static final String MSG_CidadeNaoPossuiBairroComIdInformado = "Cidade não possui bairro com id informado.";
     private final PageResponseMapper pageResponseMapper;
 
     public RuaController(RuaService ruaService, PageResponseMapper pageResponseMapper) {
@@ -50,9 +52,9 @@ public class RuaController {
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = ErroResponseDto.class),
                             examples = {
-                                    @ExampleObject(name = "Estado não possui a cidade com o Id informado.",
+                                    @ExampleObject(name = MSG_EstadoNaoPossuiCidadeComIdInformado,
                                             value = ErroExamples.ERRO_404),
-                                    @ExampleObject(name = "Cidade não possui um bairro com o Id informado.",
+                                    @ExampleObject(name = MSG_CidadeNaoPossuiBairroComIdInformado,
                                             value = ErroExamples.ERRO_404)
                             })),
             @ApiResponse(responseCode = "409", description = DESC_CODE_409,
@@ -76,9 +78,9 @@ public class RuaController {
             @ApiResponse(responseCode = "404", description = DESC_CODE_404,
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = ErroResponseDto.class),
-                            examples = {@ExampleObject(name = "Estado não possui a cidade informada.",
+                            examples = {@ExampleObject(name = MSG_EstadoNaoPossuiCidadeComIdInformado,
                                     value = ErroExamples.ERRO_404),
-                                    @ExampleObject(name = "Cidade não possui o bairro informado.",
+                                    @ExampleObject(name = MSG_CidadeNaoPossuiBairroComIdInformado,
                                             value = ErroExamples.ERRO_404),
                                     @ExampleObject(name = "Bairro não possui rua com id informado.",
                                             value = ErroExamples.ERRO_404)})),
@@ -89,7 +91,7 @@ public class RuaController {
                                     value = ErroExamples.ERRO_409)}))
     })
     public ResponseEntity<RuaResponseDto> atualizarRua(@PathVariable("ruaId") UUID ruaId,
-                                                       @RequestBody RuaRequestDto requestDto) {
+                                                       @RequestBody @Valid RuaRequestDto requestDto) {
         return ResponseEntity.ok(ruaService.atualizarRua(ruaId, requestDto));
     }
 
@@ -102,13 +104,13 @@ public class RuaController {
             @ApiResponse(responseCode = "404", description = DESC_CODE_404,
                     content = @Content(mediaType = TYPE_JSON,
                             schema = @Schema(implementation = ErroResponseDto.class),
-                            examples = {@ExampleObject(name = "Estado não possui cidade com o id informado.",
+                            examples = {@ExampleObject(name = MSG_EstadoNaoPossuiCidadeComIdInformado,
                                     value = ErroExamples.ERRO_404),
-                                    @ExampleObject(name = "Cidade não possui bairro com o id informado",
+                                    @ExampleObject(name = MSG_CidadeNaoPossuiBairroComIdInformado,
                                             value = ErroExamples.ERRO_404)}))
 
     })
-    public ResponseEntity<PageResponseDto<RuaResponseDto>> buscaRuasDeBairro(RuasDeUmBairroRequestDto requestDto,
+    public ResponseEntity<PageResponseDto<RuaResponseDto>> buscaRuasDeBairro(@RequestBody @Valid RuasDeUmBairroRequestDto requestDto,
                                                                              @ParameterObject Pageable pageable) {
         var page = ruaService.buscarRuasDeUmBairro(requestDto, pageable);
         return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
