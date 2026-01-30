@@ -12,4 +12,5 @@ public interface RuaRepository extends JpaRepository<Rua, UUID> {
     boolean existsByIdAndBairroId(UUID ruaId, UUID bairroId);
     boolean existsByNomeIgnoreCaseAndBairroId(String nome, UUID bairroId);
     Page<Rua> findByBairroId(UUID bairroId, Pageable pageable);
+    Page<Rua> findByNomeIgnoreCaseContainingAndBairroId(String nomeRua, UUID bairroId, Pageable pageable);
 }
