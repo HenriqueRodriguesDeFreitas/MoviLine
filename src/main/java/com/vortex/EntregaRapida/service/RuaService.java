@@ -81,10 +81,19 @@ public class RuaService {
     }
 
     public Page<RuaResponseDto> buscarRuasDeUmBairro(RuasDeUmBairroRequestDto requestDto,
-                                                    Pageable pageable) {
+                                                     Pageable pageable) {
         verificaCidadePertenceAoEstado(requestDto.cidadeId(), requestDto.estadoId());
         verificaCidadePossuiBairro(requestDto.cidadeId(), requestDto.bairroId());
         return ruaRepository.findByBairroId(requestDto.bairroId(), pageable)
+                .map(ruaMapper::toResponse);
+    }
+
+    public Page<RuaResponseDto> buscarRuasPorNome(UUID estadoId, UUID cidadeId, UUID bairroId,
+                                                   String nome, Pageable pageable) {
+        verificaCidadePertenceAoEstado(cidadeId, estadoId);
+        verificaCidadePossuiBairro(cidadeId, bairroId);
+        return ruaRepository.findByNomeIgnoreCaseContainingAndBairroId(
+                        nome, bairroId, pageable)
                 .map(ruaMapper::toResponse);
     }
 
