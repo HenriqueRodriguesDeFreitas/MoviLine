@@ -13,35 +13,43 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandle {
 
-    ErroResponseDto response;
 
     @ExceptionHandler(ConflitoDeEntidadeException.class)
     public ResponseEntity<ErroResponseDto> conflitoDeEntidadeHandle(
             ConflitoDeEntidadeException ex) {
-        response = toResponse(
-                HttpStatus.CONFLICT, "Erro: conflito de entidade", ex);
+        ErroResponseDto response = toResponse(
+                HttpStatus.CONFLICT,
+                "Erro: conflito de entidade",
+                ex
+        );
         return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
     }
 
     @ExceptionHandler(ConflitoEntidadeInexistente.class)
     public ResponseEntity<ErroResponseDto> entidadeInexistenteHandle(
             ConflitoEntidadeInexistente ex) {
-        response = toResponse(
-                HttpStatus.NOT_FOUND, "Erro: entidade inexistente", ex);
+        ErroResponseDto response = toResponse(
+                HttpStatus.NOT_FOUND,
+                "Erro: entidade inexistente",
+                ex
+        );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErroResponseDto> conflitoArgumentoInvalido(IllegalArgumentException ex) {
-    response = toResponse(HttpStatus.BAD_REQUEST,
-            "Erro: entrada de argumento inválido", ex);
+        ErroResponseDto response = toResponse(
+                HttpStatus.BAD_REQUEST,
+                "Erro: entrada de argumento inválido",
+                ex
+        );
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
     private static ErroResponseDto toResponse(HttpStatus status,
                                               String erro,
                                               Exception e) {
-        return new ErroResponseDto(LocalDateTime.now(),
+        return new ErroResponseDto(LocalDateTime.now().toString(),
                 status.value(),
                 erro,
                 e.getMessage());
