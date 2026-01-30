@@ -18,7 +18,7 @@ public class Rua {
     @Column(name = "cep", length = 8, nullable = false)
     private String cep;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST})
     @JoinColumn(name = "bairro_id", nullable = false)
     private Bairro bairro;
 
