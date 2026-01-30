@@ -1,6 +1,7 @@
 package com.vortex.EntregaRapida.service;
 
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
+import com.vortex.EntregaRapida.dto.request.RuasDeUmBairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.RuaResponseDto;
 import com.vortex.EntregaRapida.exception.custom.ConflitoDeEntidadeException;
 import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
@@ -8,9 +9,11 @@ import com.vortex.EntregaRapida.mapper.RuaMapper;
 import com.vortex.EntregaRapida.model.Rua;
 import com.vortex.EntregaRapida.repository.RuaRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
-import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
-import jakarta.transaction.Transactional;
+import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -33,13 +36,13 @@ public class RuaService {
 
     @Transactional
     public RuaResponseDto cadastrarRua(RuaRequestDto request) {
-        verificaCidadePertenceAoEstado(request);
-        verificaCidadePossuiBairro(request);
+        verificaCidadePertenceAoEstado(request.cidadeId(), request.estadoId());
+        verificaCidadePossuiBairro(request.cidadeId(), request.bairroId());
 
-        boolean validacaoCidadePossuiBairro
+        boolean validacaoBairroPossuiRua
                 = bairroJaPossuiRuaComNome(request.nome(), request.bairroId());
 
-        if (validacaoCidadePossuiBairro) {
+        if (validacaoBairroPossuiRua) {
             throw new ConflitoDeEntidadeException("Bairro já possui rua com o mesmo nome.");
         }
 
@@ -51,8 +54,8 @@ public class RuaService {
 
     @Transactional
     public RuaResponseDto atualizarRua(UUID ruaId, RuaRequestDto requestDto) {
-        verificaCidadePertenceAoEstado(requestDto);
-        verificaCidadePossuiBairro(requestDto);
+        verificaCidadePertenceAoEstado(requestDto.cidadeId(), requestDto.estadoId());
+        verificaCidadePossuiBairro(requestDto.cidadeId(), requestDto.bairroId());
 
         var ruaEncontrada = retornaRuaComIdPassado(ruaId);
 
@@ -77,14 +80,22 @@ public class RuaService {
         return ruaMapper.toResponse(ruaRepository.save(ruaEncontrada));
     }
 
-    private void verificaCidadePertenceAoEstado(RuaRequestDto request) {
-        if (!cidadeEstadoValidator.validaCidadePertenceAoEstado(request.cidadeId(), request.estadoId())) {
+    public Page<RuaResponseDto> buscarRuasDeUmBairro(RuasDeUmBairroRequestDto requestDto,
+                                                    Pageable pageable) {
+        verificaCidadePertenceAoEstado(requestDto.cidadeId(), requestDto.estadoId());
+        verificaCidadePossuiBairro(requestDto.cidadeId(), requestDto.bairroId());
+        return ruaRepository.findByBairroId(requestDto.bairroId(), pageable)
+                .map(ruaMapper::toResponse);
+    }
+
+    private void verificaCidadePertenceAoEstado(UUID cidadeId, UUID estadoId) {
+        if (!cidadeEstadoValidator.validaCidadePertenceAoEstado(cidadeId, estadoId)) {
             throw new ConflitoDeEntidadeException("Estado não possui a cidade informada.");
         }
     }
 
-    private void verificaCidadePossuiBairro(RuaRequestDto request) {
-        if (!bairroCidadeValidator.validaCidadePossuiBairro(request.cidadeId(), request.bairroId())) {
+    private void verificaCidadePossuiBairro(UUID cidadeId, UUID bairroId) {
+        if (!bairroCidadeValidator.validaCidadePossuiBairro(cidadeId, bairroId)) {
             throw new ConflitoEntidadeInexistente("Cidade não possui o bairro informado.");
         }
     }
