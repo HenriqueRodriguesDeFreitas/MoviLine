@@ -8,6 +8,7 @@ import com.vortex.EntregaRapida.exception.custom.ConflitoEntidadeInexistente;
 import com.vortex.EntregaRapida.mapper.BairroMapper;
 import com.vortex.EntregaRapida.model.Bairro;
 import com.vortex.EntregaRapida.repository.BairroRepository;
+import com.vortex.EntregaRapida.repository.RuaRepository;
 import com.vortex.EntregaRapida.service.validation.BairroCidadeValidator;
 import com.vortex.EntregaRapida.service.validation.CidadeEstadoValidator;
 import jakarta.transaction.Transactional;
@@ -21,6 +22,7 @@ import java.util.UUID;
 public class BairroService {
 
     private final BairroRepository bairroRepository;
+    private final RuaRepository ruaRepository;
     private final CidadeEstadoValidator cidadeEstadoValidation;
     private final BairroCidadeValidator bairroCidadeValidator;
     private final BairroMapper bairroMapper;
@@ -29,16 +31,18 @@ public class BairroService {
     public BairroService(BairroRepository bairroRepository,
                          BairroMapper bairroMapper,
                          BairroCidadeValidator bairroCidadeValidator,
-                         CidadeEstadoValidator cidadeEstadoValidation) {
+                         CidadeEstadoValidator cidadeEstadoValidation,
+                         RuaRepository ruaRepository) {
         this.bairroRepository = bairroRepository;
         this.bairroMapper = bairroMapper;
         this.cidadeEstadoValidation = cidadeEstadoValidation;
         this.bairroCidadeValidator = bairroCidadeValidator;
+        this.ruaRepository = ruaRepository;
     }
 
     @Transactional
     public BairroResponseDto cadastrarBairro(BairroRequestDto dto) {
-        verificaCidadePertenceAoEstado(dto);
+        verificaCidadePertenceAoEstado(dto.estadoId(), dto.cidadeId());
 
         verificaCidadePossuiBairroComMesmoNome(dto);
 
@@ -50,7 +54,8 @@ public class BairroService {
     @Transactional
     public BairroResponseDto atualizarBairro(UUID bairroId,
                                              BairroRequestDto dto) {
-        verificaCidadePertenceAoEstado(dto);
+        verificaCidadePertenceAoEstado(dto.estadoId(), dto.cidadeId());
+        validaCidadePossuiBairro(dto.cidadeId(), bairroId);
 
         var bairroEncontrado = getBairroPorId(bairroId);
 
@@ -69,16 +74,15 @@ public class BairroService {
     public BairroResponseDto buscarPorId(BairroPorIdRequestDto dto) {
         cidadeEstadoValidation.validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId());
 
-        if (!bairroRepository.existsByIdAndCidadeId(dto.bairroId(), dto.cidadeId())) {
-            throw new ConflitoEntidadeInexistente(MSG_CIDADE_NAO_POSSUI_BAIRRO);
-        }
+        validaCidadePossuiBairro(dto.cidadeId(), dto.bairroId());
 
         var bairroEncontrado = getBairroPorId(dto.bairroId());
         return bairroMapper.toResponse(bairroEncontrado);
     }
 
+
     public Page<BairroResponseDto> buscarBairroPorNome(BairroRequestDto dto, Pageable pageable) {
-        verificaCidadePertenceAoEstado(dto);
+        verificaCidadePertenceAoEstado(dto.estadoId(), dto.cidadeId());
 
         return bairroRepository
                 .findByNomeIgnoreCaseContainingAndCidadeId(dto.nome(), dto.cidadeId(), pageable)
@@ -91,6 +95,20 @@ public class BairroService {
         return bairroRepository.findByCidadeId(cidadeId, pageable).map(bairroMapper::toResponse);
     }
 
+    public void deletarBairro(UUID estadoId, UUID cidadeId, UUID bairroId) {
+        verificaCidadePertenceAoEstado(estadoId, cidadeId);
+        validaCidadePossuiBairro(cidadeId, bairroId);
+
+        if(ruaRepository.existsByBairroId(bairroId)){
+            throw new ConflitoDeEntidadeException(
+                    "Não é possível deletar bairro, existem ruas vinculadas a ele.");
+        }
+
+        var bairro = getBairroPorId(bairroId);
+
+        bairroRepository.delete(bairro);
+    }
+
     private void verificaCidadePossuiBairroComMesmoNome(BairroRequestDto dto) {
         if (bairroCidadeValidator
                 .cidadePossuiBairroComNomePassado(dto.nome(), dto.cidadeId())) {
@@ -98,17 +116,16 @@ public class BairroService {
         }
     }
 
-    private void verificaCidadePertenceAoEstado(BairroRequestDto dto) {
-        if (!cidadeEstadoValidation
-                .validaCidadePertenceAoEstado(dto.cidadeId(), dto.estadoId())) {
-            throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
-        }
-    }
-
     private void verificaCidadePertenceAoEstado(UUID estadoId, UUID cidadeId) {
         if (!cidadeEstadoValidation
                 .validaCidadePertenceAoEstado(cidadeId, estadoId)) {
             throw new ConflitoEntidadeInexistente("O estado não possui a cidade pesquisada.");
+        }
+    }
+
+    private void validaCidadePossuiBairro(UUID cidadeId, UUID bairroId) {
+        if (!bairroCidadeValidator.validaCidadePossuiBairro(cidadeId, bairroId)) {
+            throw new ConflitoEntidadeInexistente(MSG_CIDADE_NAO_POSSUI_BAIRRO);
         }
     }
 
