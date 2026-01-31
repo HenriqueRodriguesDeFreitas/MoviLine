@@ -132,6 +132,8 @@ class BairroServiceTest {
         );
         when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
                 .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
         when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.of(bairro));
         when(bairroCidadeValidator.cidadePossuiBairroComNomePassado(any(String.class), any(UUID.class)))
                 .thenReturn(false);
@@ -164,6 +166,8 @@ class BairroServiceTest {
     void atualizarBairro_deveRetornarConflitoDeEntidadeException__quandoBairroNaoExiste() {
         when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
                 .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
         when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.empty());
 
         ConflitoEntidadeInexistente exception = assertThrows(ConflitoEntidadeInexistente.class,
@@ -181,6 +185,8 @@ class BairroServiceTest {
                 "Centro"
         );
         when(cidadeEstadoValidation.validaCidadePertenceAoEstado(any(UUID.class), any(UUID.class)))
+                .thenReturn(true);
+        when(bairroCidadeValidator.validaCidadePossuiBairro(any(UUID.class), any(UUID.class)))
                 .thenReturn(true);
         when(bairroRepository.findById(any(UUID.class))).thenReturn(Optional.of(bairro));
         when(bairroCidadeValidator.cidadePossuiBairroComNomePassado(any(String.class), any(UUID.class)))
