@@ -142,7 +142,13 @@ public class BairroController {
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso.",
                     content = @Content(mediaType = TYPE_JSON, schema =
-                    @Schema(implementation = BairroResponseDto.class)))
+                    @Schema(implementation = BairroResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON, schema =
+                    @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = "Estado não possui cidade com o id informado",
+                                    value = ErroExamples.ERRO_404)
+                            }))
     })
     public ResponseEntity<PageResponseDto<BairroResponseDto>> buscarBairrosDeCidade(
             @RequestParam UUID estadoId,
@@ -150,5 +156,13 @@ public class BairroController {
             @ParameterObject Pageable pageable) {
         var page = bairroService.buscarBairrosDeCidade(estadoId, cidadeId, pageable);
         return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
+    }
+
+    @DeleteMapping
+    public ResponseEntity<Void> deletarBairro(@RequestParam UUID estadoId,
+                                              @RequestParam UUID cidadeId,
+                                              @RequestParam UUID bairroId) {
+        bairroService.deletarBairro(estadoId, cidadeId, bairroId);
+        return ResponseEntity.noContent().build();
     }
 }
