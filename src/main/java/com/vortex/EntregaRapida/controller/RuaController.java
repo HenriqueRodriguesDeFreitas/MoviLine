@@ -1,6 +1,7 @@
 package com.vortex.EntregaRapida.controller;
 
 import com.vortex.EntregaRapida.docs.ErroExamples;
+import com.vortex.EntregaRapida.dto.request.LocalizacaoParamsRequestDto;
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
 import com.vortex.EntregaRapida.dto.request.RuasDeUmBairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.ErroResponseDto;
@@ -136,5 +137,29 @@ public class RuaController {
             @RequestParam String nome, @ParameterObject Pageable pageable) {
         var page = ruaService.buscarRuasPorNome(estadoId, cidadeId, bairroId, nome, pageable);
         return ResponseEntity.ok(pageResponseMapper.toPageResponse(page));
+    }
+
+    @GetMapping("/buscarPorId")
+    @Operation(summary = "Buscar rua por id.", description = "Rota utilizada para buscar uma rua por seu id.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Busca retornada com sucesso!",
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = RuaResponseDto.class))),
+            @ApiResponse(responseCode = "404", description = DESC_CODE_404,
+                    content = @Content(mediaType = TYPE_JSON,
+                            schema = @Schema(implementation = ErroResponseDto.class),
+                            examples = {@ExampleObject(name = MSG_EstadoNaoPossuiCidadeComIdInformado,
+                                    value = ErroExamples.ERRO_404),
+                                    @ExampleObject(name = MSG_CidadeNaoPossuiBairroComIdInformado)}))
+    })
+    public ResponseEntity<RuaResponseDto> buscarRuaPorId (@ModelAttribute @Valid LocalizacaoParamsRequestDto params) {
+        return ResponseEntity.ok(ruaService.buscarRuaPorId(params));
+    }
+
+    @DeleteMapping
+    @Operation(summary = "Deleta rua", description = "Método utilizado para deletar uma rua.")
+    public ResponseEntity<Void> deletarRua(@ModelAttribute @Valid LocalizacaoParamsRequestDto params) {
+        ruaService.deletarRua(params);
+        return ResponseEntity.noContent().build();
     }
 }
