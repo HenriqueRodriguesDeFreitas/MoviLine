@@ -1,5 +1,6 @@
 package com.vortex.EntregaRapida.service;
 
+import com.vortex.EntregaRapida.dto.request.LocalizacaoParamsRequestDto;
 import com.vortex.EntregaRapida.dto.request.RuaRequestDto;
 import com.vortex.EntregaRapida.dto.request.RuasDeUmBairroRequestDto;
 import com.vortex.EntregaRapida.dto.response.RuaResponseDto;
@@ -89,12 +90,33 @@ public class RuaService {
     }
 
     public Page<RuaResponseDto> buscarRuasPorNome(UUID estadoId, UUID cidadeId, UUID bairroId,
-                                                   String nome, Pageable pageable) {
+                                                  String nome, Pageable pageable) {
         verificaCidadePertenceAoEstado(cidadeId, estadoId);
         verificaCidadePossuiBairro(cidadeId, bairroId);
         return ruaRepository.findByNomeIgnoreCaseContainingAndBairroId(
                         nome, bairroId, pageable)
                 .map(ruaMapper::toResponse);
+    }
+
+    public RuaResponseDto buscarRuaPorId(LocalizacaoParamsRequestDto params) {
+        verificaCidadePertenceAoEstado(params.cidadeId(), params.estadoId());
+        verificaCidadePossuiBairro(params.cidadeId(), params.bairroId());
+
+        var rua = retornaRuaComIdPassado(params.ruaId());
+
+        return ruaMapper.toResponse(rua);
+    }
+
+    public void deletarRua(LocalizacaoParamsRequestDto params) {
+        verificaCidadePertenceAoEstado(params.cidadeId(), params.estadoId());
+        verificaCidadePossuiBairro(params.cidadeId(), params.bairroId());
+
+        if(!ruaRepository.existsByIdAndBairroId(params.ruaId(), params.bairroId())){
+            throw new ConflitoEntidadeInexistente("Bairro não possui rua com o Id informado, não será possível deletar.");
+        }
+
+        var rua = retornaRuaComIdPassado(params.ruaId());
+        ruaRepository.delete(rua);
     }
 
     private void verificaCidadePertenceAoEstado(UUID cidadeId, UUID estadoId) {
