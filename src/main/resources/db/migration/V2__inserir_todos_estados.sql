@@ -25,4 +25,4 @@ INSERT INTO estado (nome) VALUES
 ('Santa Catarina'),
 ('São Paulo'),
 ('Sergipe'),
-('Tocantins');
+('Tocantins') ON CONFLICT (nome) DO NOTHING;

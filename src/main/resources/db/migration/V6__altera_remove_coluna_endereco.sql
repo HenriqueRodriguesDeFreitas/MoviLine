@@ -1,9 +1,0 @@
-ALTER TABLE endereco DROP CONSTRAINT  IF EXISTS fk_endereco_bairro_id_fkey;
-ALTER TABLE endereco DROP CONSTRAINT IF EXISTS fk_endereco_cidade_id_fkey;
-ALTER TABLE endereco DROP CONSTRAINT IF EXISTS fk_endereco_estado_id_fkey;
-ALTER TABLE endereco DROP COLUMN IF EXISTS bairro_id;
-ALTER TABLE endereco DROP COLUMN IF EXISTS estado_id;
-ALTER TABLE endereco DROP COLUMN IF EXISTS cidade_id;
-ALTER TABLE endereco DROP COLUMN IF EXISTS cep;
-ALTER TABLE endereco DROP COLUMN IF EXISTS rua;
-ALTER TABLE endereco ADD COLUMN IF NOT EXISTS rua_id UUID NOT NULL;
