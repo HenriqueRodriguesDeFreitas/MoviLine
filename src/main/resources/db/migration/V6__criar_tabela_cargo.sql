@@ -1,0 +1,4 @@
+CREATE TABLE IF NOT EXISTS cargo (
+    id UUID NOT NULL PRIMARY KEY DEFAULT gen_random_uuid(),
+    cargo VARCHAR(100) NOT NULL UNIQUE
+);
